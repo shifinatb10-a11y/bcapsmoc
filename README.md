@@ -144,3 +144,4 @@ sql/schema.sql            Full database setup script
 - To replace the placeholder homepage image, sign in as a **Department Admin**
   and use **Admin → Site Settings**.
 "# bca_psmoc_new" 
+"# bca_psmoc_new" 
