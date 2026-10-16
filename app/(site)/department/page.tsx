@@ -15,9 +15,9 @@ export const metadata = {
 const HIGHLIGHTS = [
   {
     icon: GraduationCap,
-    title: "3-Year BCA Programme",
+    title: "4-Year BCA Programme",
     description:
-      "A six-semester undergraduate programme affiliated to the University of Calicut, covering programming, databases, networking and modern application development.",
+      "An eight-semester undergraduate programme affiliated to the University of Calicut, covering programming, databases, networking and modern application development.",
   },
   {
     icon: MonitorSmartphone,
