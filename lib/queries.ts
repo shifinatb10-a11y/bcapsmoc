@@ -138,6 +138,12 @@ export async function getSettings(): Promise<Record<string, string>> {
   }
 }
 
+/** The hero background photo URL (falls back to the bundled college photo). */
+export async function getHeroImage(): Promise<string> {
+  const settings = await getSettings();
+  return settings.hero_image_url || "/college-photo.jpg";
+}
+
 export async function getTransactions(): Promise<Transaction[]> {
   try {
     const supabase = await createClient();

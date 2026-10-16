@@ -1,6 +1,6 @@
 import { Images, PlayCircle } from "lucide-react";
 import { notFound } from "next/navigation";
-import { getGalleryItems } from "@/lib/queries";
+import { getGalleryItems, getHeroImage } from "@/lib/queries";
 import { publicPageVisible } from "@/lib/page-visibility";
 import { Container, EmptyState, PageHero } from "@/components/ui";
 
@@ -15,7 +15,10 @@ export const metadata = {
 export default async function GalleryPage() {
   if (!(await publicPageVisible("gallery"))) notFound();
 
-  const items = await getGalleryItems();
+  const [items, heroImage] = await Promise.all([
+    getGalleryItems(),
+    getHeroImage(),
+  ]);
 
   return (
     <>
@@ -23,6 +26,7 @@ export default async function GalleryPage() {
         eyebrow="Gallery"
         title="Moments from the department"
         description="Photos and videos from association events, club activities, seminars and campus life at the Department of Computer Applications."
+        imageUrl={heroImage}
       />
 
       <Container className="py-14 sm:py-20">

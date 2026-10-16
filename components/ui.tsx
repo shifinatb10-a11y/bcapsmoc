@@ -93,15 +93,32 @@ export function PageHero({
   eyebrow,
   title,
   description,
+  imageUrl,
   children,
 }: {
   eyebrow?: string;
   title: string;
   description?: string;
+  imageUrl?: string | null;
   children?: ReactNode;
 }) {
   return (
     <section className="relative isolate overflow-hidden bg-brand-950 text-white">
+      {imageUrl ? (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrl}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          {/* Blue duotone blend so the photo sits into the brand colour */}
+          <div className="absolute inset-0 bg-brand-900/55 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-950 via-brand-950/85 to-brand-950/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-950 via-brand-950/25 to-transparent" />
+        </>
+      ) : null}
       <div aria-hidden="true" className="absolute inset-0 bg-mesh-hero opacity-70" />
       <div
         aria-hidden="true"

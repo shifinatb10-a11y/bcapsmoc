@@ -1,4 +1,4 @@
-import { getAssociations } from "@/lib/queries";
+import { getAssociations, getHeroImage } from "@/lib/queries";
 import { Container, PageHero } from "@/components/ui";
 import { AssociationsExplorer } from "@/components/AssociationsExplorer";
 import { notFound } from "next/navigation";
@@ -15,7 +15,10 @@ export const metadata = {
 export default async function AssociationPage() {
   if (!(await publicPageVisible("association"))) notFound();
 
-  const associations = await getAssociations();
+  const [associations, heroImage] = await Promise.all([
+    getAssociations(),
+    getHeroImage(),
+  ]);
 
   return (
     <>
@@ -23,6 +26,7 @@ export default async function AssociationPage() {
         eyebrow="Student Association"
         title="BCA Students' Association"
         description="Every academic year the department's students' association elects an office bearer and organises a range of technical and cultural activities. Browse the reports and magazines of each association term."
+        imageUrl={heroImage}
       />
 
       <Container className="py-14 sm:py-20">

@@ -1,5 +1,5 @@
 import { CalendarDays, Sparkles } from "lucide-react";
-import { getClub } from "@/lib/queries";
+import { getClub, getHeroImage } from "@/lib/queries";
 import { Container, EmptyState, PageHero } from "@/components/ui";
 import { DocumentActions } from "@/components/DocumentActions";
 import { formatDate } from "@/lib/utils";
@@ -17,7 +17,7 @@ export const metadata = {
 export default async function ClubPage() {
   if (!(await publicPageVisible("club"))) notFound();
 
-  const club = await getClub();
+  const [club, heroImage] = await Promise.all([getClub(), getHeroImage()]);
 
   return (
     <>
@@ -29,6 +29,7 @@ export default async function ClubPage() {
           club?.description ||
           "A student-driven club that brings together technology enthusiasts through activities, competitions and hands-on learning."
         }
+        imageUrl={heroImage}
       />
 
       {club?.cover_image_url ? (

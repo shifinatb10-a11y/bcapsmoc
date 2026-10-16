@@ -57,5 +57,6 @@ export async function saveSettings(
   revalidatePath("/association");
   revalidatePath("/club");
   revalidatePath("/study-zone");
+  revalidatePath("/gallery");
   return { ok: true, message: "Site settings saved." };
 }

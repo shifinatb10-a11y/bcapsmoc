@@ -52,6 +52,7 @@ export default async function DepartmentPage() {
         eyebrow="About the Department"
         title="Department of Computer Applications"
         description="Nurturing the next generation of software professionals through quality teaching, modern facilities and a thriving student community."
+        imageUrl={settings.hero_image_url || "/college-photo.jpg"}
       />
 
       <Container className="py-14 sm:py-20">
