@@ -29,7 +29,7 @@ export function AdminPageHeader({
 }
 
 const SECTION_OWNER: Record<Section, string> = {
-  department: "Department Admin",
+  department: "Super Admin",
   association: "Association Admin",
   club: "Club Admin",
   studyzone: "Study Zone Admin",
@@ -46,7 +46,7 @@ export function Unauthorized({ section }: { section: Section }) {
       </h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-ink-500">
         This area is managed by the {SECTION_OWNER[section]} role. If you need
-        access, ask a Department or Super Admin to update your role.
+        access, ask the Super Admin to update your role.
       </p>
     </div>
   );

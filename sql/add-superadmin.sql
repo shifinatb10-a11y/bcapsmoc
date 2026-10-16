@@ -60,17 +60,17 @@ create policy "public read study_materials"
 create policy "public read site_settings"
   on public.site_settings for select using (true);
 
--- ---- Faculty: Department admin (+ Super Admin) ----
-create policy "department writes faculty"
+-- ---- Faculty: Super Admin only ----
+create policy "superadmin writes faculty"
   on public.faculty for all to authenticated
-  using (public.admin_role() in ('department', 'superadmin'))
-  with check (public.admin_role() in ('department', 'superadmin'));
+  using (public.admin_role() = 'superadmin')
+  with check (public.admin_role() = 'superadmin');
 
--- ---- Site settings: Department admin (+ Super Admin) ----
-create policy "department writes site_settings"
+-- ---- Site settings: Super Admin only ----
+create policy "superadmin writes site_settings"
   on public.site_settings for all to authenticated
-  using (public.admin_role() in ('department', 'superadmin'))
-  with check (public.admin_role() in ('department', 'superadmin'));
+  using (public.admin_role() = 'superadmin')
+  with check (public.admin_role() = 'superadmin');
 
 -- ---- Associations + reports: Association admin (+ Super Admin) ----
 create policy "association writes associations"
@@ -100,15 +100,15 @@ create policy "studyzone writes study_materials"
   using (public.admin_role() in ('studyzone', 'superadmin'))
   with check (public.admin_role() in ('studyzone', 'superadmin'));
 
--- ---- Admin users: any admin can view the team; Department or Super Admin changes roles ----
-create policy "admins read admin_users"
+-- ---- Admin users: each admin reads their own row; only Super Admin sees/edits the team ----
+create policy "admins read own admin_users row"
   on public.admin_users for select to authenticated
-  using (public.admin_role() is not null);
+  using (public.user_id = auth.uid() or public.admin_role() = 'superadmin');
 
-create policy "department manages admin_users"
+create policy "superadmin manages admin_users"
   on public.admin_users for all to authenticated
-  using (public.admin_role() in ('department', 'superadmin'))
-  with check (public.admin_role() in ('department', 'superadmin'));
+  using (public.admin_role() = 'superadmin')
+  with check (public.admin_role() = 'superadmin');
 
 -- ----------------------------------------------------------------------------
 -- 1b. Guard: only a Super Admin may grant the Super Admin role

@@ -25,7 +25,7 @@ export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   superadmin:
     "Full access — manages every section (department, association, club and study zone) and all other administrator accounts.",
   department:
-    "Manages faculty profiles, the department page and general site settings.",
+    "View-only dashboard access. Faculty, site settings and administrator accounts are managed by the Super Admin.",
   association:
     "Manages the student association, its secretaries, event reports and magazines.",
   club: "Manages the department club, its events and activity reports.",
@@ -44,7 +44,8 @@ export const ALL_SECTIONS: Section[] = [
 
 const PERMISSIONS: Record<AdminRole, Section[]> = {
   superadmin: ALL_SECTIONS,
-  department: ["department"],
+  // Faculty, Site Settings and Admin Team belong to the Super Admin only.
+  department: [],
   association: ["association"],
   club: ["club"],
   studyzone: ["studyzone"],

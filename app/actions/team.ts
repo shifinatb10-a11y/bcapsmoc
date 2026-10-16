@@ -13,7 +13,7 @@ export async function updateAdminRole(
 ): Promise<ActionState> {
   const admin = await getAdminSession();
   if (!admin || !canManage(admin.role, "department")) {
-    return { error: "Only a Department or Super Admin can change admin roles." };
+    return { error: "Only a Super Admin can change admin roles." };
   }
 
   const id = text(formData, "id");

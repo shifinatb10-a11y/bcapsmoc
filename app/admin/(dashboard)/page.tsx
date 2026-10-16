@@ -59,15 +59,22 @@ export default async function AdminOverviewPage() {
           <p className="mt-1 text-brand-800/80">
             {isSuperAdmin(session.role)
               ? "You have full access to every section of the dashboard and can manage all other administrator accounts."
-              : `Your account can manage the ${
-                  actions.map((item) => item.label.toLowerCase()).join(", ") ||
-                  "dashboard"
-                } section. Other sections stay locked to their own administrators.`}
+              : actions.length > 0
+                ? `Your account can manage the ${actions
+                    .map((item) => item.label.toLowerCase())
+                    .join(", ")} section. Other sections stay locked to their own administrators.`
+                : "You have view-only access to the dashboard. Faculty, site settings and administrator accounts are managed by the Super Admin."}
           </p>
         </div>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
+        {actions.length === 0 ? (
+          <p className="rounded-2xl border border-ink-100 bg-white p-6 text-sm text-ink-500 shadow-card sm:col-span-2">
+            You have view-only access to the dashboard. Faculty, site settings
+            and administrator accounts are managed by the Super Admin.
+          </p>
+        ) : null}
         {actions.map((item) => {
           const Icon = item.icon;
           const count = counts[item.href];

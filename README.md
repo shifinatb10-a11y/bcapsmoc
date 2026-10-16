@@ -23,7 +23,7 @@ College (Autonomous), Tirurangadi. Rebuilt with **Next.js 15 (App Router)**,
 | Role              | Can manage                                                    |
 | ----------------- | ------------------------------------------------------------- |
 | **Super Admin**   | Everything — every section below **and** all administrator accounts. |
-| **Department**    | Faculty profiles, the homepage image and department text, admin team roles. |
+| **Department**    | View-only dashboard access. Content is managed by the Super Admin. |
 | **Association**   | Association terms, secretaries, event reports and magazines.  |
 | **Club**          | Club details, club events and their reports.                  |
 | **Study Zone**    | Previous year question papers and study notes.                |
@@ -147,5 +147,5 @@ sql/schema.sql            Full database setup script
   **`documents`** bucket. Both are created by `sql/schema.sql`.
 - The old single-file HTML/CSS/JS version and its pages have been removed as
   requested. The previous database tables are untouched but no longer used.
-- To replace the placeholder homepage image, sign in as a **Department Admin**
+- To replace the placeholder homepage image, sign in as the **Super Admin**
   and use **Admin → Site Settings**.
