@@ -5,18 +5,20 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ExternalLink, LogOut, Menu, X } from "lucide-react";
 import { Crest } from "@/components/Crest";
-import { ADMIN_NAV } from "./nav";
+import { navItemsFor } from "./nav";
 import { signOut } from "@/app/actions/auth";
-import { canManage, ROLE_LABELS, type AdminRole } from "@/lib/types";
+import { ROLE_LABELS, type AdminRole } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export function AdminShell({
   role,
   email,
+  hiddenPages = [],
   children,
 }: {
   role: AdminRole;
   email: string | null;
+  hiddenPages?: string[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -26,9 +28,7 @@ export function AdminShell({
     setOpen(false);
   }, [pathname]);
 
-  const items = ADMIN_NAV.filter(
-    (item) => item.section === null || canManage(role, item.section),
-  );
+  const items = navItemsFor(role, hiddenPages);
 
   const sidebar = (
     <div className="flex h-full flex-col bg-brand-950 text-brand-100">

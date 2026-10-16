@@ -15,23 +15,37 @@ College (Autonomous), Tirurangadi. Rebuilt with **Next.js 15 (App Router)**,
 | Association      | `/association` | Tabbed association terms (2025–2026, 2026–2027). Each shows its secretary, event reports (PDF) and magazine. |
 | Club             | `/club`        | Department club details, events and their published reports.                                 |
 | Study Zone       | `/study-zone`  | Previous year question papers and notes, filterable and viewable/downloadable as PDF.        |
+| Gallery          | `/gallery`     | Public photos and videos managed by the Media Admin.                                          |
 | Admin login      | `/admin/login` | Secure email + password login.                                                               |
 | Admin dashboard  | `/admin`       | Role-aware management area.                                                                  |
+| Finance ledger   | `/admin/finance` | **Private.** Transactions, visible to the Department, Association and Finance admins.        |
+| Page visibility  | `/admin/pages` | **Super Admin only.** Show or hide every page from the public and from admin logins.          |
 
-### The five admin roles
+### The seven admin roles
 
 | Role              | Can manage                                                    |
 | ----------------- | ------------------------------------------------------------- |
-| **Super Admin**   | Everything — every section below **and** all administrator accounts. |
-| **Department**    | View-only dashboard access. Content is managed by the Super Admin. |
-| **Association**   | Association terms, secretaries, event reports and magazines.  |
+| **Super Admin**   | Everything — every section below, all administrator accounts, and which pages are visible. |
+| **Department**    | Read-only access to the finance ledger. All other content is managed by the Super Admin. |
+| **Association**   | Association terms, secretaries, event reports and magazines (plus read-only finance). |
 | **Club**          | Club details, club events and their reports.                  |
 | **Study Zone**    | Previous year question papers and study notes.                |
+| **Finance**       | Adds, edits and deletes transactions in the private finance ledger. |
+| **Media**         | Adds and deletes the images and videos shown in the public gallery. |
 
 Each role can only open and edit its own section — enforced both in the UI and
 in the database (Row Level Security). The **Super Admin** is the exception: it
 can open and edit **every** section. Only a Super Admin can grant or remove the
 Super Admin role (enforced in the app *and* by a database trigger).
+
+### Page visibility
+
+As the **Super Admin**, open **Admin → Pages** to switch each page on or off:
+
+- **Visible to the public** — hides the page (and its menu link) from the
+  website entirely; visitors get a 404.
+- **Visible to admin logins** — removes the page from the admin dashboards for
+  every other administrator (you keep access).
 
 ### Security
 
@@ -86,10 +100,19 @@ values ('PASTE-THE-USER-UUID', 'admin@example.com', 'department')
 on conflict (user_id) do update set role = excluded.role;
 ```
 
-Valid roles: `superadmin`, `department`, `association`, `club`, `studyzone`.
+Valid roles: `superadmin`, `department`, `association`, `club`, `studyzone`, `finance`, `media`.
 Use `superadmin` for an account that manages every section (see
 [`sql/add-superadmin.sql`](sql/add-superadmin.sql) if your database already
 exists).
+
+If your database already exists, also run these two migrations once each (both
+are safe to re-run and never delete data):
+
+- [`sql/add-superadmin.sql`](sql/add-superadmin.sql) — Super Admin role, the
+  `guard_admin_role` trigger and the corrected admin read policy.
+- [`sql/add-finance-gallery-pages.sql`](sql/add-finance-gallery-pages.sql) —
+  the `transactions`, `gallery_items` and `page_visibility` tables with their
+  Row Level Security policies (Finance, Gallery and Page visibility features).
 
 ### 5. Run the site
 
@@ -134,8 +157,11 @@ app/
 components/               Shared UI + admin components
 lib/
   supabase/               Browser, server and middleware clients
-  auth.ts types.ts queries.ts nav.ts utils.ts
+  auth.ts types.ts queries.ts nav.ts pages.ts utils.ts
 sql/schema.sql            Full database setup script
+sql/add-superadmin.sql    Migration for databases created before the Super Admin
+sql/add-finance-gallery-pages.sql
+                          Migration adding Finance, Gallery and Page visibility
 ```
 
 ---

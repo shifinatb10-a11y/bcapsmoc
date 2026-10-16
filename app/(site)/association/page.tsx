@@ -1,6 +1,8 @@
 import { getAssociations } from "@/lib/queries";
 import { Container, PageHero } from "@/components/ui";
 import { AssociationsExplorer } from "@/components/AssociationsExplorer";
+import { notFound } from "next/navigation";
+import { publicPageVisible } from "@/lib/page-visibility";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,8 @@ export const metadata = {
 };
 
 export default async function AssociationPage() {
+  if (!(await publicPageVisible("association"))) notFound();
+
   const associations = await getAssociations();
 
   return (

@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { CalendarDays, FileText } from "lucide-react";
 import { getAdminSession } from "@/lib/auth";
 import { getAssociations } from "@/lib/queries";
-import { canManage } from "@/lib/types";
+import { canManage, isSuperAdmin } from "@/lib/types";
+import { adminPageVisible } from "@/lib/page-visibility";
 import { AdminPageHeader, AdminCard, Unauthorized } from "@/components/admin/AdminPage";
 import { AssociationForm, ReportForm } from "@/components/admin/entity-forms";
 import { DeleteButton } from "@/components/admin/DeleteButton";
@@ -16,6 +17,9 @@ export default async function AdminAssociationPage() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
   if (!canManage(session.role, "association")) {
+    return <Unauthorized section="association" />;
+  }
+  if (!isSuperAdmin(session.role) && !(await adminPageVisible("association"))) {
     return <Unauthorized section="association" />;
   }
 

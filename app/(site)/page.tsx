@@ -4,6 +4,7 @@ import {
   BookOpen,
   Building2,
   GraduationCap,
+  Images,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -11,11 +12,15 @@ import {
   getAssociations,
   getClub,
   getFaculty,
+  getPageVisibility,
   getSettings,
   getStudyMaterials,
 } from "@/lib/queries";
 import { Avatar, Badge, Container, SectionHeading, StatCard } from "@/components/ui";
 import { DocumentActions } from "@/components/DocumentActions";
+import { notFound } from "next/navigation";
+import { publicPageVisible } from "@/lib/page-visibility";
+import { isPublicVisible, PAGES } from "@/lib/pages";
 
 export const dynamic = "force-dynamic";
 
@@ -51,16 +56,31 @@ const QUICK_LINKS = [
     icon: BookOpen,
     accent: "from-accent-500 to-accent-700",
   },
+  {
+    href: "/gallery",
+    label: "Gallery",
+    description: "Photos and videos from association events and club activities.",
+    icon: Images,
+    accent: "from-rose-400 to-rose-600",
+  },
 ];
 
 export default async function DashboardPage() {
-  const [settings, faculty, associations, club, materials] = await Promise.all([
-    getSettings(),
-    getFaculty(),
-    getAssociations(),
-    getClub(),
-    getStudyMaterials(),
-  ]);
+  if (!(await publicPageVisible("home"))) notFound();
+
+  const [settings, faculty, associations, club, materials, visibility] =
+    await Promise.all([
+      getSettings(),
+      getFaculty(),
+      getAssociations(),
+      getClub(),
+      getStudyMaterials(),
+      getPageVisibility(),
+    ]);
+
+  const hiddenPublicHrefs = PAGES.filter(
+    (page) => page.publicHref && !isPublicVisible(visibility, page.key),
+  ).map((page) => page.publicHref as string);
 
   const heroImage = settings.hero_image_url || "/college-photo.jpg";
   const heroTagline =
@@ -157,7 +177,9 @@ export default async function DashboardPage() {
           description="Everything about the department is organised into four sections."
         />
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {QUICK_LINKS.map((link) => {
+          {QUICK_LINKS.filter(
+            (link) => !hiddenPublicHrefs.includes(link.href),
+          ).map((link) => {
             const Icon = link.icon;
             return (
               <Link

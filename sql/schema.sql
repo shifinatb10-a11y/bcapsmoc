@@ -138,6 +138,58 @@ create table if not exists public.site_settings (
   updated_at timestamptz not null default now()
 );
 
+-- ----------------------------------------------------------------------------
+-- 6b. FINANCE LEDGER  (private — never shown on the public website)
+-- ----------------------------------------------------------------------------
+create table if not exists public.transactions (
+  id               uuid primary key default gen_random_uuid(),
+  title            text not null,
+  kind             text not null default 'income'
+                   check (kind in ('income', 'expense')),
+  amount           numeric(12,2) not null default 0,
+  category         text,
+  transaction_date date,
+  reference        text,
+  description      text,
+  created_at       timestamptz not null default now()
+);
+
+create index if not exists transactions_date_idx
+  on public.transactions (transaction_date desc);
+
+-- ----------------------------------------------------------------------------
+-- 6c. GALLERY  (public images + videos)
+-- ----------------------------------------------------------------------------
+create table if not exists public.gallery_items (
+  id            uuid primary key default gen_random_uuid(),
+  title         text not null,
+  media_type    text not null default 'image'
+                check (media_type in ('image', 'video')),
+  url           text not null,
+  thumbnail_url text,
+  description   text,
+  display_order integer not null default 0,
+  created_at    timestamptz not null default now()
+);
+
+create index if not exists gallery_items_order_idx
+  on public.gallery_items (display_order);
+
+-- ----------------------------------------------------------------------------
+-- 6d. PAGE VISIBILITY  (Super Admin show/hide switches per page)
+-- ----------------------------------------------------------------------------
+create table if not exists public.page_visibility (
+  page           text primary key,
+  public_visible boolean not null default true,
+  admin_visible  boolean not null default true,
+  updated_at     timestamptz not null default now()
+);
+
+insert into public.page_visibility (page) values
+  ('home'), ('department'), ('association'), ('club'), ('study-zone'),
+  ('gallery'), ('finance'), ('team'), ('settings')
+on conflict (page) do nothing;
+
 -- ============================================================================
 -- 7. ROLE HELPER
 --    Returns the role of the currently signed-in admin, or NULL.
@@ -197,7 +249,8 @@ declare
   r record;
   managed text[] := array[
     'faculty', 'admin_users', 'associations', 'association_reports',
-    'clubs', 'club_events', 'study_materials', 'site_settings'
+    'clubs', 'club_events', 'study_materials', 'site_settings',
+    'transactions', 'gallery_items', 'page_visibility'
   ];
 begin
   foreach t in array managed loop
@@ -218,6 +271,9 @@ alter table public.clubs               enable row level security;
 alter table public.club_events         enable row level security;
 alter table public.study_materials     enable row level security;
 alter table public.site_settings       enable row level security;
+alter table public.transactions        enable row level security;
+alter table public.gallery_items       enable row level security;
+alter table public.page_visibility     enable row level security;
 
 -- ---- Public read access ----
 create policy "public read faculty"
@@ -291,6 +347,36 @@ create policy "superadmin manages admin_users"
   using (public.admin_role() = 'superadmin')
   with check (public.admin_role() = 'superadmin');
 
+-- ---- Finance ledger: private. Dept & Association admins may READ; Finance admin writes ----
+create policy "finance team reads transactions"
+  on public.transactions for select to authenticated
+  using (
+    public.admin_role() in ('department', 'association', 'finance', 'superadmin')
+  );
+
+create policy "finance admin writes transactions"
+  on public.transactions for all to authenticated
+  using (public.admin_role() in ('finance', 'superadmin'))
+  with check (public.admin_role() in ('finance', 'superadmin'));
+
+-- ---- Gallery: public read; Media admin (+ Super Admin) writes ----
+create policy "public read gallery_items"
+  on public.gallery_items for select using (true);
+
+create policy "media admin writes gallery_items"
+  on public.gallery_items for all to authenticated
+  using (public.admin_role() in ('media', 'superadmin'))
+  with check (public.admin_role() in ('media', 'superadmin'));
+
+-- ---- Page visibility: everyone may READ; only Super Admin writes ----
+create policy "public read page_visibility"
+  on public.page_visibility for select using (true);
+
+create policy "superadmin writes page_visibility"
+  on public.page_visibility for all to authenticated
+  using (public.admin_role() = 'superadmin')
+  with check (public.admin_role() = 'superadmin');
+
 -- ============================================================================
 -- 9. STORAGE BUCKETS  (public read; admins upload)
 -- ============================================================================
@@ -353,7 +439,9 @@ grant select on
   public.clubs,
   public.club_events,
   public.study_materials,
-  public.site_settings
+  public.site_settings,
+  public.gallery_items,
+  public.page_visibility
 to anon, authenticated;
 
 grant select, insert, update, delete on
@@ -364,7 +452,10 @@ grant select, insert, update, delete on
   public.clubs,
   public.club_events,
   public.study_materials,
-  public.site_settings
+  public.site_settings,
+  public.transactions,
+  public.gallery_items,
+  public.page_visibility
 to authenticated;
 
 -- ============================================================================
@@ -423,7 +514,8 @@ on conflict (key) do nothing;
 --     values ('PASTE-THE-USER-UUID-HERE', 'admin@example.com', 'department')
 --     on conflict (user_id) do update set role = excluded.role;
 --
---  Valid roles: 'superadmin' | 'department' | 'association' | 'club' | 'studyzone'
+--  Valid roles: 'superadmin' | 'department' | 'association' | 'club'
+--               | 'studyzone' | 'finance' | 'media'
 --     (Use 'superadmin' for an account that manages every section.)
 --
 --  Example — quick way to register by email without copying the UUID:

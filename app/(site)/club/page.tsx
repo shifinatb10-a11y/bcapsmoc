@@ -3,6 +3,8 @@ import { getClub } from "@/lib/queries";
 import { Container, EmptyState, PageHero } from "@/components/ui";
 import { DocumentActions } from "@/components/DocumentActions";
 import { formatDate } from "@/lib/utils";
+import { notFound } from "next/navigation";
+import { publicPageVisible } from "@/lib/page-visibility";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +15,8 @@ export const metadata = {
 };
 
 export default async function ClubPage() {
+  if (!(await publicPageVisible("club"))) notFound();
+
   const club = await getClub();
 
   return (

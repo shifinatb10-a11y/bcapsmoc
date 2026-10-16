@@ -1,6 +1,8 @@
 import { getStudyMaterials } from "@/lib/queries";
 import { Container, PageHero } from "@/components/ui";
 import { StudyMaterialsExplorer } from "@/components/StudyMaterialsExplorer";
+import { notFound } from "next/navigation";
+import { publicPageVisible } from "@/lib/page-visibility";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,8 @@ export const metadata = {
 };
 
 export default async function StudyZonePage() {
+  if (!(await publicPageVisible("study-zone"))) notFound();
+
   const materials = await getStudyMaterials();
 
   return (

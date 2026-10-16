@@ -3,7 +3,13 @@ import { CollegeLogo } from "./CollegeLogo";
 import { Container } from "./ui";
 import { MAIN_NAV } from "@/lib/nav";
 
-export function SiteFooter() {
+export function SiteFooter({
+  hiddenHrefs = [],
+}: {
+  hiddenHrefs?: string[];
+}) {
+  const nav = MAIN_NAV.filter((item) => !hiddenHrefs.includes(item.href));
+
   return (
     <footer className="relative mt-20 overflow-hidden bg-brand-950 text-brand-100">
       <div
@@ -44,7 +50,7 @@ export function SiteFooter() {
             Explore
           </h3>
           <ul className="mt-4 space-y-2.5 text-sm">
-            {MAIN_NAV.map((item) => (
+            {nav.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}

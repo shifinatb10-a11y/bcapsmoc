@@ -14,9 +14,14 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function SiteHeader() {
+export function SiteHeader({
+  hiddenHrefs = [],
+}: {
+  hiddenHrefs?: string[];
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const nav = MAIN_NAV.filter((item) => !hiddenHrefs.includes(item.href));
 
   useEffect(() => {
     setOpen(false);
@@ -66,7 +71,7 @@ export function SiteHeader() {
           </div>
 
           <nav className="hidden items-center gap-1 lg:flex">
-            {MAIN_NAV.map((item) => {
+            {nav.map((item) => {
               const active = isActive(pathname, item.href);
               return (
                 <Link
@@ -137,7 +142,7 @@ export function SiteHeader() {
           </div>
 
           <nav className="flex-1 overflow-y-auto px-3 py-4">
-            {MAIN_NAV.map((item) => {
+            {nav.map((item) => {
               const Icon = item.icon;
               const active = isActive(pathname, item.href);
               return (

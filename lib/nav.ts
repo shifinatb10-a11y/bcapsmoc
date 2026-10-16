@@ -1,6 +1,7 @@
 import {
   BookOpen,
   Building2,
+  Images,
   LayoutDashboard,
   Sparkles,
   Users,
@@ -44,5 +45,11 @@ export const MAIN_NAV: MainNavItem[] = [
     label: "Study Zone",
     description: "Question papers & study notes",
     icon: BookOpen,
+  },
+  {
+    href: "/gallery",
+    label: "Gallery",
+    description: "Photos & videos from the department",
+    icon: Images,
   },
 ];

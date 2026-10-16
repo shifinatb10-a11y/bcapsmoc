@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { FileText, NotebookPen } from "lucide-react";
 import { getAdminSession } from "@/lib/auth";
 import { getStudyMaterials } from "@/lib/queries";
-import { canManage } from "@/lib/types";
+import { canManage, isSuperAdmin } from "@/lib/types";
+import { adminPageVisible } from "@/lib/page-visibility";
 import { AdminPageHeader, AdminCard, Unauthorized } from "@/components/admin/AdminPage";
 import { MaterialForm } from "@/components/admin/entity-forms";
 import { DeleteButton } from "@/components/admin/DeleteButton";
@@ -15,6 +16,9 @@ export default async function AdminStudyZonePage() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
   if (!canManage(session.role, "studyzone")) {
+    return <Unauthorized section="studyzone" />;
+  }
+  if (!isSuperAdmin(session.role) && !(await adminPageVisible("study-zone"))) {
     return <Unauthorized section="studyzone" />;
   }
 

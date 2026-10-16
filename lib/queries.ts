@@ -1,12 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
+import { defaultVisibility, type VisibilityMap } from "@/lib/pages";
 import type {
   Association,
   AssociationReport,
   Club,
   ClubEvent,
   Faculty,
+  GalleryItem,
   SiteSetting,
   StudyMaterial,
+  Transaction,
 } from "@/lib/types";
 
 /**
@@ -132,5 +135,62 @@ export async function getSettings(): Promise<Record<string, string>> {
     );
   } catch {
     return {};
+  }
+}
+
+export async function getTransactions(): Promise<Transaction[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .order("transaction_date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+    if (error) return [];
+    return (data ?? []) as Transaction[];
+  } catch {
+    return [];
+  }
+}
+
+export async function getGalleryItems(): Promise<GalleryItem[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("gallery_items")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: false });
+    if (error) return [];
+    return (data ?? []) as GalleryItem[];
+  } catch {
+    return [];
+  }
+}
+
+/** Reads the page visibility switches (public read, safe for everyone). */
+export async function getPageVisibility(): Promise<VisibilityMap> {
+  const map = defaultVisibility();
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("page_visibility")
+      .select("*");
+    if (error) return map;
+    for (const row of (data ?? []) as {
+      page: string;
+      public_visible: boolean;
+      admin_visible: boolean;
+    }[]) {
+      if (map[row.page]) {
+        map[row.page] = {
+          public_visible: row.public_visible,
+          admin_visible: row.admin_visible,
+        };
+      }
+    }
+    return map;
+  } catch {
+    return map;
   }
 }

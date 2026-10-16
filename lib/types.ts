@@ -3,7 +3,9 @@ export type AdminRole =
   | "department"
   | "association"
   | "club"
-  | "studyzone";
+  | "studyzone"
+  | "finance"
+  | "media";
 
 export const ADMIN_ROLES: AdminRole[] = [
   "superadmin",
@@ -11,6 +13,8 @@ export const ADMIN_ROLES: AdminRole[] = [
   "association",
   "club",
   "studyzone",
+  "finance",
+  "media",
 ];
 
 export const ROLE_LABELS: Record<AdminRole, string> = {
@@ -19,27 +23,41 @@ export const ROLE_LABELS: Record<AdminRole, string> = {
   association: "Association Admin",
   club: "Club Admin",
   studyzone: "Study Zone Admin",
+  finance: "Finance Admin",
+  media: "Media Admin",
 };
 
 export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   superadmin:
-    "Full access — manages every section (department, association, club and study zone) and all other administrator accounts.",
+    "Full access — manages every section (department, association, club, study zone, finance and gallery), all administrator accounts and which pages the public can see.",
   department:
-    "View-only dashboard access. Faculty, site settings and administrator accounts are managed by the Super Admin.",
+    "Can view the finance ledger (read-only). Faculty, site settings and administrator accounts are managed by the Super Admin.",
   association:
-    "Manages the student association, its secretaries, event reports and magazines.",
+    "Manages the student association, its secretaries, event reports and magazines. Can view the finance ledger (read-only).",
   club: "Manages the department club, its events and activity reports.",
   studyzone: "Manages previous year question papers and study notes.",
+  finance:
+    "Manages the finance ledger — adds, edits and deletes transactions.",
+  media:
+    "Manages the public gallery — uploads and removes images and videos.",
 };
 
 /** Which admin section a role is allowed to manage. */
-export type Section = "department" | "association" | "club" | "studyzone";
+export type Section =
+  | "department"
+  | "association"
+  | "club"
+  | "studyzone"
+  | "finance"
+  | "gallery";
 
 export const ALL_SECTIONS: Section[] = [
   "department",
   "association",
   "club",
   "studyzone",
+  "finance",
+  "gallery",
 ];
 
 const PERMISSIONS: Record<AdminRole, Section[]> = {
@@ -49,11 +67,34 @@ const PERMISSIONS: Record<AdminRole, Section[]> = {
   association: ["association"],
   club: ["club"],
   studyzone: ["studyzone"],
+  finance: ["finance"],
+  media: ["gallery"],
+};
+
+/**
+ * Extra roles (besides the managers above) that may OPEN a section read-only.
+ * The Finance page is visible to the Department and Association admins, but
+ * only the Finance Admin and Super Admin can change transactions.
+ */
+const VIEW_PERMISSIONS: Record<Section, AdminRole[]> = {
+  department: [],
+  association: [],
+  club: [],
+  studyzone: [],
+  finance: ["department", "association"],
+  gallery: [],
 };
 
 export function canManage(role: AdminRole | null, section: Section): boolean {
   if (!role) return false;
   return PERMISSIONS[role]?.includes(section) ?? false;
+}
+
+/** True if the role may open (view) the section, even if read-only. */
+export function canView(role: AdminRole | null, section: Section): boolean {
+  if (!role) return false;
+  if (canManage(role, section)) return true;
+  return VIEW_PERMISSIONS[section]?.includes(role) ?? false;
 }
 
 /** True only for the Super Admin role. */
@@ -140,5 +181,39 @@ export interface StudyMaterial {
 export interface SiteSetting {
   key: string;
   value: string | null;
+  updated_at: string | null;
+}
+
+export type TransactionKind = "income" | "expense";
+
+export interface Transaction {
+  id: string;
+  title: string;
+  kind: TransactionKind;
+  amount: number;
+  category: string | null;
+  transaction_date: string | null;
+  reference: string | null;
+  description: string | null;
+  created_at: string | null;
+}
+
+export type GalleryMediaType = "image" | "video";
+
+export interface GalleryItem {
+  id: string;
+  title: string;
+  media_type: GalleryMediaType;
+  url: string;
+  thumbnail_url: string | null;
+  description: string | null;
+  display_order: number;
+  created_at: string | null;
+}
+
+export interface PageVisibility {
+  page: string;
+  public_visible: boolean;
+  admin_visible: boolean;
   updated_at: string | null;
 }

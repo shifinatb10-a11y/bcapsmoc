@@ -6,11 +6,21 @@ import {
   getAssociations,
   getClub,
   getFaculty,
+  getGalleryItems,
+  getPageVisibility,
   getStudyMaterials,
+  getTransactions,
 } from "@/lib/queries";
-import { canManage, isSuperAdmin, ROLE_DESCRIPTIONS, ROLE_LABELS } from "@/lib/types";
+import {
+  canManage,
+  isSuperAdmin,
+  ROLE_DESCRIPTIONS,
+  ROLE_LABELS,
+} from "@/lib/types";
+import { isAdminVisible, PAGES } from "@/lib/pages";
 import { AdminPageHeader } from "@/components/admin/AdminPage";
-import { ADMIN_NAV } from "@/components/admin/nav";
+import { navItemsFor } from "@/components/admin/nav";
+import { Badge } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -18,11 +28,22 @@ export default async function AdminOverviewPage() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
 
-  const [faculty, associations, club, materials] = await Promise.all([
+  const [
+    faculty,
+    associations,
+    club,
+    materials,
+    transactions,
+    galleryItems,
+    visibility,
+  ] = await Promise.all([
     getFaculty(),
     getAssociations(),
     getClub(),
     getStudyMaterials(),
+    getTransactions(),
+    getGalleryItems(),
+    getPageVisibility(),
   ]);
 
   const reportCount = associations.reduce(
@@ -35,11 +56,37 @@ export default async function AdminOverviewPage() {
     "/admin/association": { value: associations.length, label: "Associations" },
     "/admin/club": { value: club?.events.length ?? 0, label: "Club events" },
     "/admin/study-zone": { value: materials.length, label: "Study materials" },
+    "/admin/finance": { value: transactions.length, label: "Transactions" },
+    "/admin/gallery": { value: galleryItems.length, label: "Gallery items" },
   };
 
-  const actions = ADMIN_NAV.filter(
-    (item) => item.section !== null && canManage(session.role, item.section),
+  const hiddenPages = PAGES.filter(
+    (page) => !isAdminVisible(visibility, page.key),
+  ).map((page) => page.key);
+
+  const visible = navItemsFor(session.role, hiddenPages).filter(
+    (item) => item.href !== "/admin",
   );
+  const manageable = visible.filter(
+    (item) => item.section === null || canManage(session.role, item.section),
+  );
+  const viewOnly = visible.filter(
+    (item) => item.section !== null && !canManage(session.role, item.section),
+  );
+
+  const summary = isSuperAdmin(session.role)
+    ? "You have full access to every section of the dashboard and can manage all other administrator accounts."
+    : manageable.length > 0
+      ? `Your account can manage the ${manageable
+          .map((item) => item.label.toLowerCase())
+          .join(", ")} section${
+          manageable.length > 1 ? "s" : ""
+        }. Other sections stay locked to their own administrators.`
+      : viewOnly.length > 0
+        ? `You have read-only access to the ${viewOnly
+            .map((item) => item.label.toLowerCase())
+            .join(", ")} section. Editing is limited to its own administrator.`
+        : "You have view-only access to the dashboard. Faculty, site settings and administrator accounts are managed by the Super Admin.";
 
   return (
     <>
@@ -56,28 +103,21 @@ export default async function AdminOverviewPage() {
           <div className="font-semibold text-brand-900">
             You are signed in as {session.email ?? "an administrator"}
           </div>
-          <p className="mt-1 text-brand-800/80">
-            {isSuperAdmin(session.role)
-              ? "You have full access to every section of the dashboard and can manage all other administrator accounts."
-              : actions.length > 0
-                ? `Your account can manage the ${actions
-                    .map((item) => item.label.toLowerCase())
-                    .join(", ")} section. Other sections stay locked to their own administrators.`
-                : "You have view-only access to the dashboard. Faculty, site settings and administrator accounts are managed by the Super Admin."}
-          </p>
+          <p className="mt-1 text-brand-800/80">{summary}</p>
         </div>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        {actions.length === 0 ? (
+        {visible.length === 0 ? (
           <p className="rounded-2xl border border-ink-100 bg-white p-6 text-sm text-ink-500 shadow-card sm:col-span-2">
-            You have view-only access to the dashboard. Faculty, site settings
-            and administrator accounts are managed by the Super Admin.
+            No pages are currently available to your account.
           </p>
         ) : null}
-        {actions.map((item) => {
+        {visible.map((item) => {
           const Icon = item.icon;
           const count = counts[item.href];
+          const readOnly =
+            item.section !== null && !canManage(session.role, item.section);
           return (
             <Link
               key={item.href}
@@ -88,8 +128,11 @@ export default async function AdminOverviewPage() {
                 <Icon className="h-5 w-5" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block font-semibold text-ink-900">
-                  {item.label}
+                <span className="flex items-center gap-2">
+                  <span className="font-semibold text-ink-900">
+                    {item.label}
+                  </span>
+                  {readOnly ? <Badge tone="muted">View only</Badge> : null}
                 </span>
                 <span className="block text-sm text-ink-500">
                   {item.description}

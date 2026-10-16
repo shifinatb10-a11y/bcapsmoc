@@ -1,6 +1,8 @@
 import { Building2, GraduationCap, Mail, MonitorSmartphone, Users } from "lucide-react";
 import { getFaculty, getSettings } from "@/lib/queries";
 import { Avatar, Badge, Container, EmptyState, PageHero } from "@/components/ui";
+import { notFound } from "next/navigation";
+import { publicPageVisible } from "@/lib/page-visibility";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +34,8 @@ const HIGHLIGHTS = [
 ];
 
 export default async function DepartmentPage() {
+  if (!(await publicPageVisible("department"))) notFound();
+
   const [faculty, settings] = await Promise.all([getFaculty(), getSettings()]);
 
   const intro =
