@@ -284,7 +284,7 @@ create policy "studyzone writes study_materials"
 -- ---- Admin users: each admin reads their own row; only Super Admin sees/edits the team ----
 create policy "admins read own admin_users row"
   on public.admin_users for select to authenticated
-  using (public.user_id = auth.uid() or public.admin_role() = 'superadmin');
+  using (user_id = auth.uid() or public.admin_role() = 'superadmin');
 
 create policy "superadmin manages admin_users"
   on public.admin_users for all to authenticated
