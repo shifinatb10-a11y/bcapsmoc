@@ -19,7 +19,7 @@ College (Autonomous), Tirurangadi. Rebuilt with **Next.js 15 (App Router)**,
 | Admin login      | `/admin/login` | Secure email + password login.                                                               |
 | Admin dashboard  | `/admin`       | Role-aware management area.                                                                  |
 | Finance ledger   | `/admin/finance` | **Private.** Transactions, visible to the Department, Association and Finance admins.        |
-| Student records  | `/admin/students` | **Private.** Students stored under each batch year (2025-2029…). Department Admin only.      |
+| Student records  | `/admin/students` | **Private.** Students stored under each batch year (2025-2029…). Add/delete batch years, change a batch's semester. Department Admin only. |
 | Page visibility  | `/admin/pages` | **Super Admin only.** Show or hide every page from the public and from admin logins.          |
 
 ### The seven admin roles
@@ -28,6 +28,9 @@ College (Autonomous), Tirurangadi. Rebuilt with **Next.js 15 (App Router)**,
 | ----------------- | ------------------------------------------------------------- |
 | **Super Admin**   | Everything — every section below, all administrator accounts, and which pages are visible. |
 | **Department**    | Student records and batch years, plus read-only access to the finance ledger. |
+
+Every destructive action in the dashboard opens a warning dialog and only
+deletes after you confirm — deleting a batch year also removes its students.
 | **Association**   | Association terms, secretaries, event reports and magazines (plus read-only finance). |
 | **Club**          | Club details, club events and their reports.                  |
 | **Study Zone**    | Previous year question papers and study notes.                |
