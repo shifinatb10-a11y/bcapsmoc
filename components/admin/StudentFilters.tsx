@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { changeBatchSemester } from "@/app/actions/students";
+import { changeBatchSemester, deleteBatch } from "@/app/actions/students";
 import { SEMESTERS, type StudentBatch } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { DeleteButton } from "./DeleteButton";
 
 /**
  * Batch-year tabs (each showing its current semester) plus a semester control
@@ -14,10 +15,14 @@ export function StudentFilters({
   batches,
   batch,
   semester,
+  canEdit,
+  studentCount,
 }: {
   batches: StudentBatch[];
   batch: string | null;
   semester: number;
+  canEdit: boolean;
+  studentCount: number;
 }) {
   return (
     <div className="flex flex-col gap-5 rounded-2xl border border-ink-100 bg-white p-5 shadow-card lg:flex-row lg:items-end lg:justify-between">
@@ -55,12 +60,12 @@ export function StudentFilters({
       </div>
 
       {batch ? (
-        <form action={changeBatchSemester} className="block">
-          <input type="hidden" name="label" value={batch} />
-          <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-ink-500">
-            Current semester
-          </span>
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-end gap-4">
+          <form action={changeBatchSemester} className="block">
+            <input type="hidden" name="label" value={batch} />
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              Current semester
+            </span>
             <select
               name="semester"
               value={semester}
@@ -73,19 +78,21 @@ export function StudentFilters({
                 </option>
               ))}
             </select>
-            <noscript>
-              <button
-                type="submit"
-                className="rounded-xl border border-ink-100 px-4 py-2.5 text-sm font-semibold text-ink-700"
-              >
-                Update
-              </button>
-            </noscript>
-          </div>
-          <span className="mt-1 block text-xs text-ink-500">
-            Moves every student in {batch}.
-          </span>
-        </form>
+          </form>
+
+          {canEdit ? (
+            <DeleteButton
+              action={deleteBatch}
+              id={batch}
+              name="label"
+              label="Delete batch"
+              title={`Delete the batch "${batch}"?`}
+              confirmMessage={`This will permanently delete the batch year "${batch}" and all ${studentCount} student ${
+                studentCount === 1 ? "record" : "records"
+              } stored under it. This cannot be undone.`}
+            />
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

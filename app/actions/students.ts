@@ -80,6 +80,19 @@ export async function deleteStudent(formData: FormData) {
   refresh();
 }
 
+/** Delete a whole batch year (its students are removed too, by cascade). */
+export async function deleteBatch(formData: FormData) {
+  const admin = await getAdminSession();
+  if (!admin || !canManage(admin.role, "students")) return;
+
+  const label = text(formData, "label");
+  if (!label) return;
+
+  const supabase = await createClient();
+  await supabase.from("student_batches").delete().eq("label", label);
+  refresh();
+}
+
 /** Add a new batch year (e.g. 2027-2031) with its starting semester. */
 export async function addBatch(
   _prev: ActionState,

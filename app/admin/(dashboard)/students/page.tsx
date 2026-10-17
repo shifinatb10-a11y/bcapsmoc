@@ -56,6 +56,8 @@ export default async function AdminStudentsPage({
           batches={batches}
           batch={active?.label ?? null}
           semester={active?.current_semester ?? 1}
+          canEdit={canEdit}
+          studentCount={students.length}
         />
       )}
 
