@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ExternalLink, LogOut, Menu, X } from "lucide-react";
-import { Crest } from "@/components/Crest";
+import { CollegeLogo } from "@/components/CollegeLogo";
 import { navItemsFor } from "./nav";
 import { signOut } from "@/app/actions/auth";
 import { ROLE_LABELS, type AdminRole } from "@/lib/types";
@@ -33,7 +33,7 @@ export function AdminShell({
   const sidebar = (
     <div className="flex h-full flex-col bg-brand-950 text-brand-100">
       <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5">
-        <Crest className="h-9 w-9 shrink-0" />
+        <CollegeLogo className="h-9 w-9 shrink-0" />
         <div className="leading-tight">
           <div className="text-sm font-semibold text-white">BCA Admin</div>
           <div className="text-[11px] text-brand-100/70">
@@ -111,7 +111,7 @@ export function AdminShell({
       {/* Mobile top bar */}
       <div className="sticky top-0 z-30 flex items-center justify-between border-b border-ink-100 bg-white px-4 py-3 lg:hidden">
         <div className="flex items-center gap-2.5">
-          <Crest className="h-8 w-8" />
+          <CollegeLogo className="h-8 w-8" />
           <span className="text-sm font-semibold text-ink-900">BCA Admin</span>
         </div>
         <button

@@ -5,7 +5,7 @@ import { getAdminSession } from "@/lib/auth";
 import { signIn } from "@/app/actions/auth";
 import { AdminForm } from "@/components/admin/AdminForm";
 import { Field, inputClass } from "@/components/admin/Field";
-import { Crest } from "@/components/Crest";
+import { CollegeLogo } from "@/components/CollegeLogo";
 import { ADMIN_ROLES, ROLE_DESCRIPTIONS, ROLE_LABELS } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -38,7 +38,7 @@ export default async function AdminLoginPage({
         />
         <div className="relative">
           <div className="flex items-center gap-3">
-            <Crest className="h-12 w-12" />
+            <CollegeLogo className="h-12 w-12" />
             <div className="leading-tight">
               <div className="font-display text-lg font-semibold">
                 PSMO College (Autonomous)
