@@ -5,8 +5,8 @@ import { saveAssociation, saveReport } from "@/app/actions/association";
 import { saveClub, saveClubEvent } from "@/app/actions/club";
 import { saveMaterial } from "@/app/actions/study";
 import { saveSettings } from "@/app/actions/settings";
-import { saveStudent } from "@/app/actions/students";
-import { GENDERS } from "@/lib/types";
+import { saveStudent, addBatch } from "@/app/actions/students";
+import { GENDERS, SEMESTERS } from "@/lib/types";
 import type {
   Association,
   Club,
@@ -594,11 +594,9 @@ export function SettingsForm({
 export function StudentForm({
   student,
   batch,
-  semester,
 }: {
   student?: Student;
   batch: string;
-  semester: number;
 }) {
   return (
     <AdminForm
@@ -606,7 +604,6 @@ export function StudentForm({
       submitLabel={student ? "Save changes" : "Add student"}
       hiddenFields={{
         batch,
-        semester,
         ...(student ? { id: student.id } : {}),
       }}
     >
@@ -701,6 +698,47 @@ export function StudentForm({
           className={inputClass}
         />
       </Field>
+    </AdminForm>
+  );
+}
+
+export function BatchForm() {
+  return (
+    <AdminForm action={addBatch} submitLabel="Add batch year">
+      <FormGrid cols={2}>
+        <Field
+          label="Batch year"
+          htmlFor="label"
+          required
+          hint="The admission years, e.g. 2027-2031."
+        >
+          <input
+            id="label"
+            name="label"
+            required
+            placeholder="2027-2031"
+            className={inputClass}
+          />
+        </Field>
+        <Field
+          label="Starting semester"
+          htmlFor="current_semester"
+          hint="You can change this later."
+        >
+          <select
+            id="current_semester"
+            name="current_semester"
+            defaultValue={1}
+            className={inputClass}
+          >
+            {SEMESTERS.map((semester) => (
+              <option key={semester} value={semester}>
+                Semester {semester}
+              </option>
+            ))}
+          </select>
+        </Field>
+      </FormGrid>
     </AdminForm>
   );
 }

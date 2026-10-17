@@ -9,6 +9,7 @@ import type {
   GalleryItem,
   SiteSetting,
   Student,
+  StudentBatch,
   StudyMaterial,
   Transaction,
 } from "@/lib/types";
@@ -202,18 +203,29 @@ export async function getPageVisibility(): Promise<VisibilityMap> {
   }
 }
 
-/** Students in one batch + semester (private — Department Admin only). */
-export async function getStudents(
-  batch: string,
-  semester: number,
-): Promise<Student[]> {
+/** All batches (admission years), each with its current semester. */
+export async function getStudentBatches(): Promise<StudentBatch[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("student_batches")
+      .select("*")
+      .order("label", { ascending: true });
+    if (error) return [];
+    return (data ?? []) as StudentBatch[];
+  } catch {
+    return [];
+  }
+}
+
+/** Students in one batch (private — Department Admin only). */
+export async function getStudents(batch: string): Promise<Student[]> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("students")
       .select("*")
       .eq("batch", batch)
-      .eq("semester", semester)
       .order("roll_no", { ascending: true, nullsFirst: false })
       .order("name", { ascending: true });
     if (error) return [];

@@ -1,22 +1,37 @@
 -- ============================================================================
---  ADD: private STUDENT RECORDS  (Department Admin feature)
+--  ADD: private STUDENT RECORDS + BATCH YEARS  (Department Admin feature)
 -- ----------------------------------------------------------------------------
 --  HOW TO RUN
 --    Supabase Dashboard -> SQL Editor -> New query -> paste this -> Run.
 --
---  Safe to run more than once. It does NOT delete any existing data.
---  Creates a private `students` table that is readable and writable ONLY by
---  the Department Admin and the Super Admin. The public website can never
---  read it (no `anon` grant and no public read policy).
+--  Safe to run more than once. It does NOT delete any student data.
+--
+--  Design
+--    * student_batches — one row per admission year (e.g. 2025-2029) holding
+--      the current semester for the whole group.
+--    * students — one row per student, stored against the batch year.
+--    Both tables are private: only the Department Admin and the Super Admin
+--    can read or write them (no `anon` grant, no public read policy).
 -- ============================================================================
 
 create extension if not exists pgcrypto;
 
--- A student record, grouped by batch year (e.g. 2025-2029) and semester (1-8).
+-- ---- 1. Batch years (admission years) --------------------------------------
+create table if not exists public.student_batches (
+  label            text primary key,
+  current_semester integer not null default 1
+                   check (current_semester between 1 and 8),
+  created_at       timestamptz not null default now()
+);
+
+insert into public.student_batches (label) values
+  ('2025-2029'), ('2026-2030')
+on conflict (label) do nothing;
+
+-- ---- 2. Students (linked to a batch year) ----------------------------------
 create table if not exists public.students (
   id           uuid primary key default gen_random_uuid(),
   batch        text not null,
-  semester     integer not null check (semester between 1 and 8),
   roll_no      text,
   admission_no text,
   register_no  text,
@@ -29,11 +44,42 @@ create table if not exists public.students (
   created_at   timestamptz not null default now()
 );
 
-create index if not exists students_batch_semester_idx
-  on public.students (batch, semester);
+-- 2a. Remove the old `semester` column if an earlier version created it.
+--     Students belong to a batch year now; the batch holds the semester.
+alter table public.students drop column if exists semester;
 
--- ---- Row Level Security: private to Department Admin (+ Super Admin) ----
+-- 2b. Ensure every batch referenced by existing students exists.
+insert into public.student_batches (label)
+select distinct batch from public.students
+where batch is not null
+on conflict (label) do nothing;
+
+-- 2c. Add the foreign key to the batch year (only if it is missing).
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'students_batch_fkey'
+      and conrelid = 'public.students'::regclass
+  ) then
+    alter table public.students
+      add constraint students_batch_fkey
+      foreign key (batch) references public.student_batches (label)
+      on update cascade on delete cascade;
+  end if;
+end $$;
+
+create index if not exists students_batch_idx on public.students (batch);
+
+-- ---- 3. Row Level Security: private to Department Admin (+ Super Admin) ----
+alter table public.student_batches enable row level security;
 alter table public.students enable row level security;
+
+drop policy if exists "department manages student_batches" on public.student_batches;
+create policy "department manages student_batches"
+  on public.student_batches for all to authenticated
+  using (public.admin_role() in ('department', 'superadmin'))
+  with check (public.admin_role() in ('department', 'superadmin'));
 
 drop policy if exists "department manages students" on public.students;
 create policy "department manages students"
@@ -41,6 +87,7 @@ create policy "department manages students"
   using (public.admin_role() in ('department', 'superadmin'))
   with check (public.admin_role() in ('department', 'superadmin'));
 
--- ---- Grants: authenticated admins only (NOT anon / public) ----
+-- ---- 4. Grants: authenticated admins only (NOT anon / public) ---------------
 grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.student_batches to authenticated;
 grant select, insert, update, delete on public.students to authenticated;

@@ -224,24 +224,30 @@ export interface PageVisibility {
 }
 
 /**
- * The BCA batches offered by the department. A batch label covers the whole
- * four-year programme (e.g. "2025-2029" = students who joined in 2025).
+ * Semesters 1 to 8 (four years).
  */
-export const STUDENT_BATCHES: string[] = ["2025-2029", "2026-2030"];
-
-/** Semesters 1 to 8 (four years). */
 export const SEMESTERS: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
 
 export const GENDERS: string[] = ["Male", "Female", "Other"];
 
 /**
- * A student record. Stored in the private `students` table and organised by
- * batch (year) and semester. Never shown on the public website.
+ * A batch (admission year) such as "2025-2029". Every student belongs to a
+ * batch, and the batch carries the current semester for the whole group.
+ * The Department Admin can add batches and move a batch to the next semester.
+ */
+export interface StudentBatch {
+  label: string;
+  current_semester: number;
+  created_at: string | null;
+}
+
+/**
+ * A student record. Stored in the private `students` table and linked to a
+ * batch by its year label. Never shown on the public website.
  */
 export interface Student {
   id: string;
   batch: string;
-  semester: number;
   roll_no: string | null;
   admission_no: string | null;
   register_no: string | null;

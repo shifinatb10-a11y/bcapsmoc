@@ -191,12 +191,26 @@ insert into public.page_visibility (page) values
 on conflict (page) do nothing;
 
 -- ----------------------------------------------------------------------------
--- 6e. STUDENTS  (private — Department Admin only, by batch year + semester)
+-- 6e. STUDENT RECORDS  (private — Department Admin only)
+--     A "batch" is an admission year (e.g. 2025-2029). Students are stored
+--     against the batch year; the batch carries the current semester for the
+--     whole group, so moving a batch to the next semester moves every student.
 -- ----------------------------------------------------------------------------
+create table if not exists public.student_batches (
+  label            text primary key,
+  current_semester integer not null default 1
+                   check (current_semester between 1 and 8),
+  created_at       timestamptz not null default now()
+);
+
+insert into public.student_batches (label) values
+  ('2025-2029'), ('2026-2030')
+on conflict (label) do nothing;
+
 create table if not exists public.students (
   id           uuid primary key default gen_random_uuid(),
-  batch        text not null,
-  semester     integer not null check (semester between 1 and 8),
+  batch        text not null references public.student_batches (label)
+               on update cascade on delete cascade,
   roll_no      text,
   admission_no text,
   register_no  text,
@@ -209,8 +223,8 @@ create table if not exists public.students (
   created_at   timestamptz not null default now()
 );
 
-create index if not exists students_batch_semester_idx
-  on public.students (batch, semester);
+create index if not exists students_batch_idx
+  on public.students (batch);
 
 -- ============================================================================
 -- 7. ROLE HELPER
@@ -272,7 +286,8 @@ declare
   managed text[] := array[
     'faculty', 'admin_users', 'associations', 'association_reports',
     'clubs', 'club_events', 'study_materials', 'site_settings',
-    'transactions', 'gallery_items', 'page_visibility', 'students'
+    'transactions', 'gallery_items', 'page_visibility',
+    'student_batches', 'students'
   ];
 begin
   foreach t in array managed loop
@@ -296,6 +311,7 @@ alter table public.site_settings       enable row level security;
 alter table public.transactions        enable row level security;
 alter table public.gallery_items       enable row level security;
 alter table public.page_visibility     enable row level security;
+alter table public.student_batches     enable row level security;
 alter table public.students            enable row level security;
 
 -- ---- Public read access ----
@@ -401,6 +417,11 @@ create policy "superadmin writes page_visibility"
   with check (public.admin_role() = 'superadmin');
 
 -- ---- Student records: PRIVATE. Only Department Admin (+ Super Admin) ----
+create policy "department manages student_batches"
+  on public.student_batches for all to authenticated
+  using (public.admin_role() in ('department', 'superadmin'))
+  with check (public.admin_role() in ('department', 'superadmin'));
+
 create policy "department manages students"
   on public.students for all to authenticated
   using (public.admin_role() in ('department', 'superadmin'))
@@ -485,6 +506,7 @@ grant select, insert, update, delete on
   public.transactions,
   public.gallery_items,
   public.page_visibility,
+  public.student_batches,
   public.students
 to authenticated;
 
