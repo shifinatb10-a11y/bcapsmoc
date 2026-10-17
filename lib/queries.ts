@@ -8,6 +8,7 @@ import type {
   Faculty,
   GalleryItem,
   SiteSetting,
+  Student,
   StudyMaterial,
   Transaction,
 } from "@/lib/types";
@@ -198,5 +199,40 @@ export async function getPageVisibility(): Promise<VisibilityMap> {
     return map;
   } catch {
     return map;
+  }
+}
+
+/** Students in one batch + semester (private — Department Admin only). */
+export async function getStudents(
+  batch: string,
+  semester: number,
+): Promise<Student[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("students")
+      .select("*")
+      .eq("batch", batch)
+      .eq("semester", semester)
+      .order("roll_no", { ascending: true, nullsFirst: false })
+      .order("name", { ascending: true });
+    if (error) return [];
+    return (data ?? []) as Student[];
+  } catch {
+    return [];
+  }
+}
+
+/** Total number of student records across all batches and semesters. */
+export async function getStudentCount(): Promise<number> {
+  try {
+    const supabase = await createClient();
+    const { count, error } = await supabase
+      .from("students")
+      .select("*", { count: "exact", head: true });
+    if (error) return 0;
+    return count ?? 0;
+  } catch {
+    return 0;
   }
 }

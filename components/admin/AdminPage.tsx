@@ -35,6 +35,7 @@ const SECTION_OWNER: Record<Section, string> = {
   studyzone: "Study Zone Admin",
   finance: "Finance Admin",
   gallery: "Media Admin",
+  students: "Department Admin",
 };
 
 export function Unauthorized({ section }: { section: Section }) {

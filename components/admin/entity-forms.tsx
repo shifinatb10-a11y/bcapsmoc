@@ -5,11 +5,14 @@ import { saveAssociation, saveReport } from "@/app/actions/association";
 import { saveClub, saveClubEvent } from "@/app/actions/club";
 import { saveMaterial } from "@/app/actions/study";
 import { saveSettings } from "@/app/actions/settings";
+import { saveStudent } from "@/app/actions/students";
+import { GENDERS } from "@/lib/types";
 import type {
   Association,
   Club,
   ClubEvent,
   Faculty,
+  Student,
   StudyMaterial,
 } from "@/lib/types";
 
@@ -581,6 +584,120 @@ export function SettingsForm({
           name="department_intro_secondary"
           rows={4}
           defaultValue={settings.department_intro_secondary ?? ""}
+          className={inputClass}
+        />
+      </Field>
+    </AdminForm>
+  );
+}
+
+export function StudentForm({
+  student,
+  batch,
+  semester,
+}: {
+  student?: Student;
+  batch: string;
+  semester: number;
+}) {
+  return (
+    <AdminForm
+      action={saveStudent}
+      submitLabel={student ? "Save changes" : "Add student"}
+      hiddenFields={{
+        batch,
+        semester,
+        ...(student ? { id: student.id } : {}),
+      }}
+    >
+      <FormGrid cols={2}>
+        <Field label="Student name" htmlFor="name" required>
+          <input
+            id="name"
+            name="name"
+            required
+            defaultValue={student?.name ?? ""}
+            placeholder="Full name"
+            className={inputClass}
+          />
+        </Field>
+        <Field label="Gender" htmlFor="gender">
+          <select
+            id="gender"
+            name="gender"
+            defaultValue={student?.gender ?? ""}
+            className={inputClass}
+          >
+            <option value="">Not specified</option>
+            {GENDERS.map((gender) => (
+              <option key={gender} value={gender}>
+                {gender}
+              </option>
+            ))}
+          </select>
+        </Field>
+      </FormGrid>
+
+      <FormGrid cols={2}>
+        <Field label="Roll number" htmlFor="roll_no">
+          <input
+            id="roll_no"
+            name="roll_no"
+            defaultValue={student?.roll_no ?? ""}
+            placeholder="e.g. 25BCA01"
+            className={inputClass}
+          />
+        </Field>
+        <Field label="Admission number" htmlFor="admission_no">
+          <input
+            id="admission_no"
+            name="admission_no"
+            defaultValue={student?.admission_no ?? ""}
+            placeholder="e.g. ADM/2025/001"
+            className={inputClass}
+          />
+        </Field>
+        <Field label="Register number" htmlFor="register_no">
+          <input
+            id="register_no"
+            name="register_no"
+            defaultValue={student?.register_no ?? ""}
+            placeholder="e.g. 2025/BCA/1234"
+            className={inputClass}
+          />
+        </Field>
+        <Field label="APAAR ID" htmlFor="apaar_id">
+          <input
+            id="apaar_id"
+            name="apaar_id"
+            defaultValue={student?.apaar_id ?? ""}
+            placeholder="APAAR / ABC ID"
+            className={inputClass}
+          />
+        </Field>
+      </FormGrid>
+
+      <FormGrid cols={2}>
+        <DateField name="dob" label="Date of birth" value={student?.dob} />
+        <Field label="Mobile number" htmlFor="mobile">
+          <input
+            id="mobile"
+            name="mobile"
+            type="tel"
+            defaultValue={student?.mobile ?? ""}
+            placeholder="10-digit mobile number"
+            className={inputClass}
+          />
+        </Field>
+      </FormGrid>
+
+      <Field label="Email ID" htmlFor="email">
+        <input
+          id="email"
+          name="email"
+          type="email"
+          defaultValue={student?.email ?? ""}
+          placeholder="student@example.com"
           className={inputClass}
         />
       </Field>

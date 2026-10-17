@@ -2,6 +2,7 @@ import {
   Award,
   BookOpen,
   Eye,
+  GraduationCap,
   Images,
   LayoutDashboard,
   Settings,
@@ -32,6 +33,13 @@ export const ADMIN_NAV: AdminNavItem[] = [
     description: "Dashboard summary",
     icon: LayoutDashboard,
     section: null,
+  },
+  {
+    href: "/admin/students",
+    label: "Students",
+    description: "Student records by batch & semester",
+    icon: GraduationCap,
+    section: "students",
   },
   {
     href: "/admin/faculty",

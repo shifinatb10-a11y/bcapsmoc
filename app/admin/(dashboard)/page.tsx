@@ -8,11 +8,13 @@ import {
   getFaculty,
   getGalleryItems,
   getPageVisibility,
+  getStudentCount,
   getStudyMaterials,
   getTransactions,
 } from "@/lib/queries";
 import {
   canManage,
+  canView,
   isSuperAdmin,
   ROLE_DESCRIPTIONS,
   ROLE_LABELS,
@@ -36,6 +38,7 @@ export default async function AdminOverviewPage() {
     transactions,
     galleryItems,
     visibility,
+    studentCount,
   ] = await Promise.all([
     getFaculty(),
     getAssociations(),
@@ -44,6 +47,9 @@ export default async function AdminOverviewPage() {
     getTransactions(),
     getGalleryItems(),
     getPageVisibility(),
+    canView(session.role, "students")
+      ? getStudentCount()
+      : Promise.resolve(0),
   ]);
 
   const reportCount = associations.reduce(
@@ -52,6 +58,7 @@ export default async function AdminOverviewPage() {
   );
 
   const counts: Record<string, { value: number; label: string }> = {
+    "/admin/students": { value: studentCount, label: "Student records" },
     "/admin/faculty": { value: faculty.length, label: "Faculty members" },
     "/admin/association": { value: associations.length, label: "Associations" },
     "/admin/club": { value: club?.events.length ?? 0, label: "Club events" },

@@ -19,6 +19,7 @@ College (Autonomous), Tirurangadi. Rebuilt with **Next.js 15 (App Router)**,
 | Admin login      | `/admin/login` | Secure email + password login.                                                               |
 | Admin dashboard  | `/admin`       | Role-aware management area.                                                                  |
 | Finance ledger   | `/admin/finance` | **Private.** Transactions, visible to the Department, Association and Finance admins.        |
+| Student records  | `/admin/students` | **Private.** Students grouped by batch year & semester. Department Admin only.               |
 | Page visibility  | `/admin/pages` | **Super Admin only.** Show or hide every page from the public and from admin logins.          |
 
 ### The seven admin roles
@@ -26,7 +27,7 @@ College (Autonomous), Tirurangadi. Rebuilt with **Next.js 15 (App Router)**,
 | Role              | Can manage                                                    |
 | ----------------- | ------------------------------------------------------------- |
 | **Super Admin**   | Everything — every section below, all administrator accounts, and which pages are visible. |
-| **Department**    | Read-only access to the finance ledger. All other content is managed by the Super Admin. |
+| **Department**    | Student records (by batch year & semester), plus read-only access to the finance ledger. |
 | **Association**   | Association terms, secretaries, event reports and magazines (plus read-only finance). |
 | **Club**          | Club details, club events and their reports.                  |
 | **Study Zone**    | Previous year question papers and study notes.                |
@@ -113,6 +114,8 @@ are safe to re-run and never delete data):
 - [`sql/add-finance-gallery-pages.sql`](sql/add-finance-gallery-pages.sql) —
   the `transactions`, `gallery_items` and `page_visibility` tables with their
   Row Level Security policies (Finance, Gallery and Page visibility features).
+- [`sql/add-students.sql`](sql/add-students.sql) — the private `students` table
+  and its Row Level Security policy (Students feature).
 
 ### 5. Run the site
 
@@ -152,7 +155,7 @@ app/
     login/page.tsx        Standalone login screen
     (dashboard)/          Guarded admin area (sidebar shell)
       page.tsx            Overview
-      faculty/ association/ club/ study-zone/ team/ settings/
+      students/ faculty/ association/ club/ study-zone/ team/ settings/
   actions/                Server actions (all writes happen here)
 components/               Shared UI + admin components
 lib/
@@ -162,6 +165,7 @@ sql/schema.sql            Full database setup script
 sql/add-superadmin.sql    Migration for databases created before the Super Admin
 sql/add-finance-gallery-pages.sql
                           Migration adding Finance, Gallery and Page visibility
+sql/add-students.sql      Migration adding private student records
 ```
 
 ---

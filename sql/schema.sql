@@ -190,6 +190,28 @@ insert into public.page_visibility (page) values
   ('gallery'), ('finance'), ('team'), ('settings')
 on conflict (page) do nothing;
 
+-- ----------------------------------------------------------------------------
+-- 6e. STUDENTS  (private — Department Admin only, by batch year + semester)
+-- ----------------------------------------------------------------------------
+create table if not exists public.students (
+  id           uuid primary key default gen_random_uuid(),
+  batch        text not null,
+  semester     integer not null check (semester between 1 and 8),
+  roll_no      text,
+  admission_no text,
+  register_no  text,
+  apaar_id     text,
+  name         text not null,
+  gender       text,
+  dob          date,
+  mobile       text,
+  email        text,
+  created_at   timestamptz not null default now()
+);
+
+create index if not exists students_batch_semester_idx
+  on public.students (batch, semester);
+
 -- ============================================================================
 -- 7. ROLE HELPER
 --    Returns the role of the currently signed-in admin, or NULL.
@@ -250,7 +272,7 @@ declare
   managed text[] := array[
     'faculty', 'admin_users', 'associations', 'association_reports',
     'clubs', 'club_events', 'study_materials', 'site_settings',
-    'transactions', 'gallery_items', 'page_visibility'
+    'transactions', 'gallery_items', 'page_visibility', 'students'
   ];
 begin
   foreach t in array managed loop
@@ -274,6 +296,7 @@ alter table public.site_settings       enable row level security;
 alter table public.transactions        enable row level security;
 alter table public.gallery_items       enable row level security;
 alter table public.page_visibility     enable row level security;
+alter table public.students            enable row level security;
 
 -- ---- Public read access ----
 create policy "public read faculty"
@@ -377,6 +400,12 @@ create policy "superadmin writes page_visibility"
   using (public.admin_role() = 'superadmin')
   with check (public.admin_role() = 'superadmin');
 
+-- ---- Student records: PRIVATE. Only Department Admin (+ Super Admin) ----
+create policy "department manages students"
+  on public.students for all to authenticated
+  using (public.admin_role() in ('department', 'superadmin'))
+  with check (public.admin_role() in ('department', 'superadmin'));
+
 -- ============================================================================
 -- 9. STORAGE BUCKETS  (public read; admins upload)
 -- ============================================================================
@@ -455,7 +484,8 @@ grant select, insert, update, delete on
   public.site_settings,
   public.transactions,
   public.gallery_items,
-  public.page_visibility
+  public.page_visibility,
+  public.students
 to authenticated;
 
 -- ============================================================================

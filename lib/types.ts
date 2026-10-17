@@ -31,7 +31,7 @@ export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   superadmin:
     "Full access — manages every section (department, association, club, study zone, finance and gallery), all administrator accounts and which pages the public can see.",
   department:
-    "Can view the finance ledger (read-only). Faculty, site settings and administrator accounts are managed by the Super Admin.",
+    "Manages student records for every batch and semester, and can view the finance ledger (read-only). Faculty, site settings and administrator accounts are managed by the Super Admin.",
   association:
     "Manages the student association, its secretaries, event reports and magazines. Can view the finance ledger (read-only).",
   club: "Manages the department club, its events and activity reports.",
@@ -49,7 +49,8 @@ export type Section =
   | "club"
   | "studyzone"
   | "finance"
-  | "gallery";
+  | "gallery"
+  | "students";
 
 export const ALL_SECTIONS: Section[] = [
   "department",
@@ -58,12 +59,14 @@ export const ALL_SECTIONS: Section[] = [
   "studyzone",
   "finance",
   "gallery",
+  "students",
 ];
 
 const PERMISSIONS: Record<AdminRole, Section[]> = {
   superadmin: ALL_SECTIONS,
-  // Faculty, Site Settings and Admin Team belong to the Super Admin only.
-  department: [],
+  // The Department Admin manages the private student records. Faculty, Site
+  // Settings and Admin Team belong to the Super Admin only.
+  department: ["students"],
   association: ["association"],
   club: ["club"],
   studyzone: ["studyzone"],
@@ -83,6 +86,8 @@ const VIEW_PERMISSIONS: Record<Section, AdminRole[]> = {
   studyzone: [],
   finance: ["department", "association"],
   gallery: [],
+  // Student records are private to the Department Admin and the Super Admin.
+  students: [],
 };
 
 export function canManage(role: AdminRole | null, section: Section): boolean {
@@ -216,4 +221,35 @@ export interface PageVisibility {
   public_visible: boolean;
   admin_visible: boolean;
   updated_at: string | null;
+}
+
+/**
+ * The BCA batches offered by the department. A batch label covers the whole
+ * four-year programme (e.g. "2025-2029" = students who joined in 2025).
+ */
+export const STUDENT_BATCHES: string[] = ["2025-2029", "2026-2030"];
+
+/** Semesters 1 to 8 (four years). */
+export const SEMESTERS: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
+
+export const GENDERS: string[] = ["Male", "Female", "Other"];
+
+/**
+ * A student record. Stored in the private `students` table and organised by
+ * batch (year) and semester. Never shown on the public website.
+ */
+export interface Student {
+  id: string;
+  batch: string;
+  semester: number;
+  roll_no: string | null;
+  admission_no: string | null;
+  register_no: string | null;
+  apaar_id: string | null;
+  name: string;
+  gender: string | null;
+  dob: string | null;
+  mobile: string | null;
+  email: string | null;
+  created_at: string | null;
 }
