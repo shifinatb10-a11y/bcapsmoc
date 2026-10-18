@@ -216,6 +216,67 @@ export default async function DashboardPage() {
         </div>
       </Container>
 
+      {/* About — descriptive copy for visitors and search engines */}
+      <div className="bg-white py-16 sm:py-20">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-[1.7fr_1fr] lg:gap-16">
+            <div>
+              <SectionHeading
+                eyebrow="About the Department"
+                title="A four-year BCA programme at PSMO College, Tirurangadi"
+              />
+              <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-ink-700">
+                <p>
+                  The Department of Computer Applications at PSMO College
+                  (Autonomous), Tirurangadi offers a four-year Bachelor of
+                  Computer Applications (BCA) programme affiliated to the
+                  University of Calicut. Across eight semesters, students build
+                  a strong foundation in programming, data structures,
+                  databases, computer networks, web and mobile application
+                  development and software engineering &mdash; supported by
+                  hands-on laboratory work and project-based learning.
+                </p>
+                <p>
+                  Beyond the classroom, the department runs an active student
+                  association and club that organise technical workshops,
+                  coding sessions, seminars, industry interactions and cultural
+                  activities, giving students the communication and teamwork
+                  skills that employers look for.
+                </p>
+                <p>
+                  This website is the department&rsquo;s digital noticeboard.
+                  Browse the faculty directory, read past event reports and
+                  department magazines, download previous-year BCA question
+                  papers and study notes from the Study Zone, and follow the
+                  department gallery.
+                </p>
+              </div>
+            </div>
+            <dl className="self-start rounded-3xl border border-ink-100 bg-ink-50/60 p-6 sm:p-8">
+              {[
+                ["Programme", "Bachelor of Computer Applications (BCA)"],
+                ["Duration", "4 years · 8 semesters"],
+                ["Affiliation", "University of Calicut"],
+                ["College", "PSMO College (Autonomous)"],
+                ["Location", "Tirurangadi, Malappuram, Kerala"],
+              ].map(([term, detail]) => (
+                <div
+                  key={term}
+                  className="border-b border-ink-100 py-3 first:pt-0 last:border-b-0 last:pb-0"
+                >
+                  <dt className="text-[11px] font-bold uppercase tracking-[0.16em] text-ink-500">
+                    {term}
+                  </dt>
+                  <dd className="mt-1 font-display text-base font-semibold text-ink-900">
+                    {detail}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </Container>
+      </div>
+
       {/* Association spotlight */}
       {currentAssociation ? (
         <div className="bg-white py-16 sm:py-20">
