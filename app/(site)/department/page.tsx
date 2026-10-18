@@ -10,6 +10,7 @@ export const metadata = {
   title: "Department",
   description:
     "About the Department of Computer Applications and its faculty at PSMO College (Autonomous), Tirurangadi.",
+  alternates: { canonical: "/department" },
 };
 
 const HIGHLIGHTS = [

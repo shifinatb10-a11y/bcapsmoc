@@ -1,7 +1,34 @@
 import Link from "next/link";
+import { Globe, Mail, Phone } from "lucide-react";
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  WhatsAppIcon,
+  XIcon,
+  YoutubeIcon,
+} from "./SocialIcons";
 import { CollegeLogo } from "./CollegeLogo";
 import { Container } from "./ui";
 import { MAIN_NAV } from "@/lib/nav";
+import { ORGANISATION, SOCIAL_LINKS } from "@/lib/site";
+
+type SocialIconComponent = React.ComponentType<{ className?: string }>;
+
+const SOCIAL_ICONS: Record<string, SocialIconComponent> = {
+  facebook: FacebookIcon,
+  instagram: InstagramIcon,
+  linkedin: LinkedInIcon,
+  x: XIcon,
+  twitter: TwitterIcon,
+  youtube: YoutubeIcon,
+  whatsapp: WhatsAppIcon,
+};
+
+function iconFor(label: string): SocialIconComponent {
+  return SOCIAL_ICONS[label.toLowerCase()] ?? Globe;
+}
 
 export function SiteFooter({
   hiddenHrefs = [],
@@ -75,7 +102,52 @@ export function SiteFooter({
               <br />
               Kerala, India
             </p>
+            {ORGANISATION.telephone ? (
+              <p>
+                <a
+                  href={`tel:${ORGANISATION.telephone.replace(/\s+/g, "")}`}
+                  className="inline-flex items-center gap-2 transition-colors hover:text-white"
+                >
+                  <Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  {ORGANISATION.telephone}
+                </a>
+              </p>
+            ) : null}
+            {ORGANISATION.email ? (
+              <p>
+                <a
+                  href={`mailto:${ORGANISATION.email}`}
+                  className="inline-flex items-center gap-2 transition-colors hover:text-white"
+                >
+                  <Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  {ORGANISATION.email}
+                </a>
+              </p>
+            ) : null}
           </address>
+
+          {SOCIAL_LINKS.length > 0 ? (
+            <ul className="mt-5 flex flex-wrap gap-2">
+              {SOCIAL_LINKS.map((social) => {
+                const Icon = iconFor(social.label);
+                return (
+                  <li key={social.href}>
+                    <a
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.label}
+                      title={social.label}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-brand-100/90 transition-colors hover:border-white/30 hover:bg-white/10 hover:text-white"
+                    >
+                      <Icon className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
+
           <p className="mt-4 text-xs text-brand-100/60">
             Affiliated to University of Calicut · NAAC Accredited
           </p>

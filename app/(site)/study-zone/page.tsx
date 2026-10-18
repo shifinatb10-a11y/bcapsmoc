@@ -10,6 +10,7 @@ export const metadata = {
   title: "Study Zone",
   description:
     "Previous year BCA question papers and study notes — view or download in PDF format.",
+  alternates: { canonical: "/study-zone" },
 };
 
 export default async function StudyZonePage() {

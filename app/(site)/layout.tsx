@@ -1,5 +1,7 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { StructuredData } from "@/components/StructuredData";
+import { Analytics } from "@/components/Analytics";
 import { getPageVisibility } from "@/lib/queries";
 import { isPublicVisible, PAGES } from "@/lib/pages";
 
@@ -17,9 +19,11 @@ export default async function SiteLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
+      <StructuredData />
       <SiteHeader hiddenHrefs={hiddenHrefs} />
       <main className="flex-1">{children}</main>
       <SiteFooter hiddenHrefs={hiddenHrefs} />
+      <Analytics />
     </div>
   );
 }

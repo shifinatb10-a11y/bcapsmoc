@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Newsreader, Plus_Jakarta_Sans } from "next/font/google";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 // next/font self-hosts these at build time, so the site makes no request to
@@ -16,17 +17,10 @@ const display = Newsreader({
   variable: "--font-display",
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
+const siteUrl = SITE_URL;
 
 const title = "BCA Department | PSMO College (Autonomous), Tirurangadi";
-const description =
-  "Official website of the Department of Computer Applications (BCA), PSMO College (Autonomous), Tirurangadi. Faculty, student association, club, previous year question papers and study notes.";
+const description = SITE_DESCRIPTION;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -35,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | BCA Department · PSMO College",
   },
   description,
-  applicationName: "BCA Department · PSMO College",
+  applicationName: SITE_NAME,
   keywords: [
     "PSMO College",
     "BCA",
@@ -62,6 +56,13 @@ export const metadata: Metadata = {
     description:
       "Faculty, student association, club, question papers and study notes — all in one place.",
   },
+};
+
+// Mobile-friendly viewport plus a brand-coloured browser UI on mobile.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#312e81",
 };
 
 export default function RootLayout({

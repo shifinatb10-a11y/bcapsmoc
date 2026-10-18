@@ -12,6 +12,7 @@ export const metadata = {
   title: "Department Club",
   description:
     "Events and activity reports of the BCA Department club at PSMO College (Autonomous), Tirurangadi.",
+  alternates: { canonical: "/club" },
 };
 
 export default async function ClubPage() {

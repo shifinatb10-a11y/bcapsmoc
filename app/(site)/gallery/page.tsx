@@ -10,6 +10,7 @@ export const metadata = {
   title: "Gallery",
   description:
     "Photos and videos from the Department of Computer Applications, PSMO College (Autonomous), Tirurangadi.",
+  alternates: { canonical: "/gallery" },
 };
 
 export default async function GalleryPage() {

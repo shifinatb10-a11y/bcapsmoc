@@ -24,6 +24,10 @@ import { isPublicVisible, PAGES } from "@/lib/pages";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  alternates: { canonical: "/" },
+};
+
 const QUICK_LINKS = [
   {
     href: "/department",

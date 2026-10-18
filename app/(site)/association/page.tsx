@@ -10,6 +10,7 @@ export const metadata = {
   title: "Student Association",
   description:
     "Office bearers, completed event reports and department magazines of the BCA Student Association, PSMO College Tirurangadi.",
+  alternates: { canonical: "/association" },
 };
 
 export default async function AssociationPage() {
