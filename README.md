@@ -59,6 +59,26 @@ As the **Super Admin**, open **Admin → Pages** to switch each page on or off:
   admin role**, enforced by Row Level Security policies in `sql/schema.sql`.
 - Sessions use secure, HTTP-only cookies via `@supabase/ssr`.
 
+**Hardening (see `next.config.mjs`)**
+
+- Every response carries a **Content-Security-Policy**
+  (`default-src 'self'`; Supabase is the only allowed external host), plus
+  `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+  `Permissions-Policy`, `Cross-Origin-Opener-Policy`,
+  `Cross-Origin-Resource-Policy` and `Strict-Transport-Security`.
+- The `X-Powered-By` header is disabled (`poweredByHeader: false`).
+- A `security.txt` (RFC 9116) is served from
+  `public/.well-known/security.txt` — update the `Contact` before the
+  `Expires` date.
+- Fonts are self-hosted via `next/font`, so the site makes **no request to
+  Google**.
+- A branded Open Graph / Twitter image is generated at `app/opengraph-image.tsx`.
+
+Things that can only be set on the **domain** (not in this repo): SPF, DMARC
+and DKIM records, DNSSEC, and a Web Application Firewall. They need a domain
+you control and a DNS/mail provider; they are informational for a
+`*.vercel.app` URL.
+
 ---
 
 ## 🚀 Setup

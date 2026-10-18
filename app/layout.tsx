@@ -1,16 +1,41 @@
 import type { Metadata } from "next";
+import { Newsreader, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+// next/font self-hosts these at build time, so the site makes no request to
+// Google for fonts (faster, and one less third party).
+const sans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
+});
+
+const display = Newsreader({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
+});
+
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
+
+const title = "BCA Department | PSMO College (Autonomous), Tirurangadi";
+const description =
+  "Official website of the Department of Computer Applications (BCA), PSMO College (Autonomous), Tirurangadi. Faculty, student association, club, previous year question papers and study notes.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "BCA Department | PSMO College (Autonomous), Tirurangadi",
+    default: title,
     template: "%s | BCA Department · PSMO College",
   },
-  description:
-    "Official website of the Department of Computer Applications (BCA), PSMO College (Autonomous), Tirurangadi. Faculty, student association, club, previous year question papers and study notes.",
+  description,
+  applicationName: "BCA Department · PSMO College",
   keywords: [
     "PSMO College",
     "BCA",
@@ -23,11 +48,19 @@ export const metadata: Metadata = {
     icon: "/favicon.png",
   },
   openGraph: {
-    title: "BCA Department | PSMO College (Autonomous), Tirurangadi",
+    title,
     description:
       "Faculty, student association, club, question papers and study notes — all in one place.",
     type: "website",
     url: siteUrl,
+    siteName: "BCA Department · PSMO College",
+    locale: "en_IN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description:
+      "Faculty, student association, club, question papers and study notes — all in one place.",
   },
 };
 
@@ -37,20 +70,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
-          rel="stylesheet"
-        />
-        <style>{`:root{--font-sans:"Plus Jakarta Sans";--font-display:"Newsreader";}`}</style>
-      </head>
+    <html lang="en" className={`${sans.variable} ${display.variable}`}>
       <body>{children}</body>
     </html>
   );
