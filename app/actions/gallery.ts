@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminSession } from "@/lib/auth";
 import { canManage } from "@/lib/types";
-import { uploadPublicFile, file, intOrNull, optional, text } from "@/lib/upload";
+import { uploadToImageKit, deleteFromImageKit } from "@/lib/imagekit/server";
+import { file, intOrNull, optional, text } from "@/lib/upload";
 import type { ActionState } from "@/lib/action-state";
 
 function refresh() {
@@ -29,20 +30,14 @@ export async function saveGalleryItem(
   const supabase = await createClient();
   const id = text(formData, "id");
 
-  // Images are uploaded to storage; videos are added as a URL (e.g. YouTube).
-  const upload = await uploadPublicFile(
-    supabase,
-    "gallery",
-    "gallery",
-    file(formData, "image"),
-  );
-  if (upload.error) return { error: `Image upload failed: ${upload.error}` };
-
+  const imageFile = file(formData, "image");
   const videoUrl = optional(formData, "video_url");
+
+  // ---- Validation ----
   if (mediaType === "video" && !videoUrl && !id) {
     return { error: "Please paste a video link (for example a YouTube URL)." };
   }
-  if (mediaType === "image" && !upload.url && !id) {
+  if (mediaType === "image" && !imageFile && !id) {
     return { error: "Please choose an image to upload." };
   }
 
@@ -53,13 +48,31 @@ export async function saveGalleryItem(
     display_order: intOrNull(formData, "display_order") ?? 0,
   };
 
-  if (upload.url) payload.url = upload.url;
-  if (videoUrl) payload.url = videoUrl;
-  if (mediaType === "video" && videoUrl) payload.url = videoUrl;
+  // ---- Image upload → ImageKit ----
+  if (imageFile) {
+    const upload = await uploadToImageKit(imageFile, "gallery", ["gallery", "bca-psmo"]);
+    if (upload.error) return { error: `Image upload failed: ${upload.error}` };
+    if (upload.data) {
+      payload.url = upload.data.url;
+      payload.thumbnail_url = upload.data.thumbnailUrl;
+      // Store ImageKit fileId so we can delete later
+      payload.imagekit_file_id = upload.data.fileId;
+    }
+  }
+
+  // ---- Video: just store the external URL ----
+  if (mediaType === "video" && videoUrl) {
+    payload.url = videoUrl;
+  }
 
   if (id) {
+    // Keep existing URL if no new file/url provided
     const update: Record<string, unknown> = { ...payload };
-    if (!upload.url && !videoUrl) delete update.url;
+    if (!imageFile && !videoUrl) {
+      delete update.url;
+      delete update.thumbnail_url;
+      delete update.imagekit_file_id;
+    }
     const { error } = await supabase
       .from("gallery_items")
       .update(update)
@@ -83,6 +96,22 @@ export async function deleteGalleryItem(formData: FormData) {
   if (!id) return;
 
   const supabase = await createClient();
+
+  // Fetch the item to get its ImageKit fileId before deleting
+  const { data: item } = await supabase
+    .from("gallery_items")
+    .select("imagekit_file_id")
+    .eq("id", id)
+    .maybeSingle();
+
+  // Delete from Supabase first
   await supabase.from("gallery_items").delete().eq("id", id);
+
+  // Then clean up from ImageKit (best-effort — don't block on error)
+  const fileId = (item as Record<string, unknown> | null)?.imagekit_file_id as string | undefined;
+  if (fileId) {
+    await deleteFromImageKit(fileId);
+  }
+
   refresh();
 }

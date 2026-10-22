@@ -83,6 +83,10 @@ const config: Config = {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
         },
+        "lattice-pulse": {
+          "0%, 100%": { transform: "scale(0.35)", opacity: "0.3" },
+          "50%": { transform: "scale(1)", opacity: "1" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.6s cubic-bezier(0.22,1,0.36,1) both",
@@ -90,6 +94,7 @@ const config: Config = {
         "float-slow": "float-slow 13s ease-in-out infinite",
         shimmer: "shimmer 2.5s linear infinite",
         "gradient-x": "gradient-x 8s ease infinite",
+        "lattice-pulse": "lattice-pulse 1.4s ease-in-out infinite",
       },
       backgroundImage: {
         "mesh-hero":

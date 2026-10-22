@@ -18,6 +18,7 @@ import {
 } from "@/lib/queries";
 import { Avatar, Badge, Container, SectionHeading, StatCard } from "@/components/ui";
 import { DocumentActions } from "@/components/DocumentActions";
+import { SpecularButton } from "@/components/SpecularButton";
 import { notFound } from "next/navigation";
 import { publicPageVisible } from "@/lib/page-visibility";
 import { isPublicVisible, PAGES } from "@/lib/pages";
@@ -144,20 +145,14 @@ export default async function DashboardPage() {
               {heroTagline}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/department"
-                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-500 to-accent-500 px-5 py-3 text-sm font-semibold text-white shadow-lift transition-transform hover:-translate-y-0.5"
-              >
+              <SpecularButton href="/department" variant="primary">
                 Explore Department
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-              <Link
-                href="/study-zone"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/5 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition-colors hover:bg-white/15"
-              >
+              </SpecularButton>
+              <SpecularButton href="/study-zone" variant="secondary">
                 <BookOpen className="h-4 w-4" />
                 Study Zone
-              </Link>
+              </SpecularButton>
             </div>
           </div>
         </Container>
@@ -428,13 +423,10 @@ export default async function DashboardPage() {
                     {club.tagline || club.description}
                   </p>
                 </div>
-                <Link
-                  href="/club"
-                  className="group inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-brand-800 transition-transform hover:-translate-y-0.5"
-                >
+                <SpecularButton href="/club" variant="white">
                   Visit Club
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
+                </SpecularButton>
               </div>
             </div>
           </Container>

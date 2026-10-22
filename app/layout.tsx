@@ -62,7 +62,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#312e81",
+  themeColor: "#1e1b4b",
 };
 
 export default function RootLayout({
@@ -72,6 +72,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${sans.variable} ${display.variable}`}>
+      <head>
+        {/* PWA manifest */}
+        <link rel="manifest" href="/manifest.json" />
+        {/* Safari PWA meta */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="BCA PSMO" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
+      </head>
       <body>{children}</body>
     </html>
   );
