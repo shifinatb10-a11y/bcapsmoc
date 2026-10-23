@@ -11,10 +11,7 @@ import type {
   Student,
   StudentBatch,
   StudyMaterial,
-<<<<<<< HEAD
   Quiz,
-=======
->>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
   Transaction,
 } from "@/lib/types";
 
@@ -65,6 +62,27 @@ export async function getAssociations(): Promise<AssociationWithReports[]> {
       ...association,
       reports: reports.filter((r) => r.association_id === association.id),
     }));
+  } catch {
+    return [];
+  }
+}
+
+export async function getAssociationReports(
+  associationId?: string,
+): Promise<AssociationReport[]> {
+  try {
+    const supabase = await createClient();
+    let query = supabase
+      .from("association_reports")
+      .select("*")
+      .order("event_date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+
+    if (associationId) query = query.eq("association_id", associationId);
+
+    const { data, error } = await query;
+    if (error) return [];
+    return (data ?? []) as AssociationReport[];
   } catch {
     return [];
   }
@@ -125,7 +143,6 @@ export async function getStudyMaterials(): Promise<StudyMaterial[]> {
   }
 }
 
-<<<<<<< HEAD
 export async function getQuizzes(): Promise<Quiz[]> {
   try {
     const supabase = await createClient();
@@ -141,8 +158,6 @@ export async function getQuizzes(): Promise<Quiz[]> {
   }
 }
 
-=======
->>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
 export async function getSettings(): Promise<Record<string, string>> {
   try {
     const supabase = await createClient();

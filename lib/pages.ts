@@ -53,11 +53,7 @@ export const PAGES: PageDef[] = [
   {
     key: "study-zone",
     label: "Study Zone",
-<<<<<<< HEAD
     description: "Previous year question papers and subject quizzes.",
-=======
-    description: "Previous year question papers and study notes.",
->>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
     publicHref: "/study-zone",
     adminHref: "/admin/study-zone",
     section: "studyzone",

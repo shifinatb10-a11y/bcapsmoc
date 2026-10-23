@@ -1,37 +1,30 @@
 import {
+  Sparkles,
   BookOpen,
   Building2,
-  Images,
-  LayoutDashboard,
-  Sparkles,
   Users,
+  Images,
   type LucideIcon,
 } from "lucide-react";
 
-export interface MainNavItem {
+export interface NavItem {
   href: string;
   label: string;
   description: string;
   icon: LucideIcon;
 }
 
-export const MAIN_NAV: MainNavItem[] = [
-  {
-    href: "/",
-    label: "Dashboard",
-    description: "Department overview & highlights",
-    icon: LayoutDashboard,
-  },
+export const MAIN_NAV: NavItem[] = [
   {
     href: "/department",
     label: "Department",
-    description: "About us, faculty & facilities",
+    description: "About the department, vision, mission & faculty",
     icon: Building2,
   },
   {
     href: "/association",
     label: "Association",
-    description: "Office bearers, reports & magazines",
+    description: "Student association, events, reports & magazines",
     icon: Users,
   },
   {
@@ -43,11 +36,7 @@ export const MAIN_NAV: MainNavItem[] = [
   {
     href: "/study-zone",
     label: "Study Zone",
-<<<<<<< HEAD
     description: "Question papers & quizzes",
-=======
-    description: "Question papers & study notes",
->>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
     icon: BookOpen,
   },
   {
