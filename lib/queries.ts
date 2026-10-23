@@ -11,7 +11,10 @@ import type {
   Student,
   StudentBatch,
   StudyMaterial,
+<<<<<<< HEAD
   Quiz,
+=======
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
   Transaction,
 } from "@/lib/types";
 
@@ -122,6 +125,7 @@ export async function getStudyMaterials(): Promise<StudyMaterial[]> {
   }
 }
 
+<<<<<<< HEAD
 export async function getQuizzes(): Promise<Quiz[]> {
   try {
     const supabase = await createClient();
@@ -137,6 +141,8 @@ export async function getQuizzes(): Promise<Quiz[]> {
   }
 }
 
+=======
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
 export async function getSettings(): Promise<Record<string, string>> {
   try {
     const supabase = await createClient();

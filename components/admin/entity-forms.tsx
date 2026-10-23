@@ -460,6 +460,7 @@ export function MaterialForm({ material }: { material?: StudyMaterial }) {
   return (
     <AdminForm
       action={saveMaterial}
+<<<<<<< HEAD
       submitLabel={material ? "Save changes" : "Add question paper"}
       hiddenFields={{
         ...(material ? { id: material.id } : {}),
@@ -467,12 +468,30 @@ export function MaterialForm({ material }: { material?: StudyMaterial }) {
       }}
     >
       <FormGrid cols={2}>
+=======
+      submitLabel={material ? "Save changes" : "Add study material"}
+      hiddenFields={material ? { id: material.id } : undefined}
+    >
+      <FormGrid cols={2}>
+        <Field label="Category" htmlFor="category" required>
+          <select
+            id="category"
+            name="category"
+            defaultValue={material?.category ?? "question_paper"}
+            className={inputClass}
+          >
+            <option value="question_paper">Question paper</option>
+            <option value="notes">Notes</option>
+          </select>
+        </Field>
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
         <Field label="Title" htmlFor="title" required>
           <input
             id="title"
             name="title"
             required
             defaultValue={material?.title ?? ""}
+<<<<<<< HEAD
             placeholder="e.g. Data Structures — Nov 2024 Exam Paper"
             className={inputClass}
           />
@@ -483,6 +502,9 @@ export function MaterialForm({ material }: { material?: StudyMaterial }) {
             name="semester"
             defaultValue={material?.semester ?? ""}
             placeholder="e.g. Semester 3"
+=======
+            placeholder="e.g. Data Structures — Previous Year Paper"
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
             className={inputClass}
           />
         </Field>
@@ -495,6 +517,18 @@ export function MaterialForm({ material }: { material?: StudyMaterial }) {
             className={inputClass}
           />
         </Field>
+<<<<<<< HEAD
+=======
+        <Field label="Semester" htmlFor="semester">
+          <input
+            id="semester"
+            name="semester"
+            defaultValue={material?.semester ?? ""}
+            placeholder="e.g. Semester 3"
+            className={inputClass}
+          />
+        </Field>
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
         <Field label="Year" htmlFor="year">
           <input
             id="year"

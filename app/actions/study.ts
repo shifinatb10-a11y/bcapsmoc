@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminSession } from "@/lib/auth";
+<<<<<<< HEAD
 import { canManage, type MaterialCategory, type QuizQuestion } from "@/lib/types";
+=======
+import { canManage, type MaterialCategory } from "@/lib/types";
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
 import { uploadPublicFile, file, optional, text } from "@/lib/upload";
 import type { ActionState } from "@/lib/action-state";
 
@@ -86,6 +90,7 @@ export async function deleteMaterial(formData: FormData) {
   await supabase.from("study_materials").delete().eq("id", id);
   refresh();
 }
+<<<<<<< HEAD
 
 export async function saveQuiz(
   _prev: ActionState,
@@ -173,3 +178,5 @@ export async function deleteQuiz(formData: FormData) {
   await supabase.from("quizzes").delete().eq("id", id);
   refresh();
 }
+=======
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b

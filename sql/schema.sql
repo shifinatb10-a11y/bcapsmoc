@@ -130,6 +130,7 @@ create index if not exists study_materials_category_idx
   on public.study_materials (category);
 
 -- ----------------------------------------------------------------------------
+<<<<<<< HEAD
 -- 5b. SUBJECT QUIZZES  (organised by semester and subject)
 -- ----------------------------------------------------------------------------
 create table if not exists public.quizzes (
@@ -147,6 +148,16 @@ create table if not exists public.quizzes (
 
 create index if not exists quizzes_semester_idx on public.quizzes (semester);
 create index if not exists quizzes_subject_idx on public.quizzes (subject);
+
+alter table public.quizzes add column if not exists title            text;
+alter table public.quizzes add column if not exists semester         text;
+alter table public.quizzes add column if not exists subject          text;
+alter table public.quizzes add column if not exists description      text;
+alter table public.quizzes add column if not exists duration_minutes integer;
+alter table public.quizzes add column if not exists quiz_url         text;
+alter table public.quizzes add column if not exists questions        jsonb not null default '[]'::jsonb;
+alter table public.quizzes add column if not exists display_order    integer not null default 0;
+alter table public.quizzes add column if not exists created_at       timestamptz not null default now();
 
 -- ----------------------------------------------------------------------------
 -- 6. SITE SETTINGS  (key/value — homepage image, intro text, ...)
@@ -389,12 +400,17 @@ create policy "club writes club_events"
   using (public.admin_role() in ('club', 'superadmin'))
   with check (public.admin_role() in ('club', 'superadmin'));
 
+<<<<<<< HEAD
 -- ---- Study materials & Quizzes: Study Zone admin (+ Super Admin) ----
+=======
+-- ---- Study materials: Study Zone admin (+ Super Admin) ----
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
 create policy "studyzone writes study_materials"
   on public.study_materials for all to authenticated
   using (public.admin_role() in ('studyzone', 'superadmin'))
   with check (public.admin_role() in ('studyzone', 'superadmin'));
 
+<<<<<<< HEAD
 create policy "public read quizzes"
   on public.quizzes for select using (true);
 
@@ -403,6 +419,8 @@ create policy "studyzone writes quizzes"
   using (public.admin_role() in ('studyzone', 'superadmin'))
   with check (public.admin_role() in ('studyzone', 'superadmin'));
 
+=======
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
 -- ---- Admin users: each admin reads their own row; only Super Admin sees/edits the team ----
 create policy "admins read own admin_users row"
   on public.admin_users for select to authenticated
@@ -516,7 +534,10 @@ grant select on
   public.clubs,
   public.club_events,
   public.study_materials,
+<<<<<<< HEAD
   public.quizzes,
+=======
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
   public.site_settings,
   public.gallery_items,
   public.page_visibility
@@ -530,7 +551,10 @@ grant select, insert, update, delete on
   public.clubs,
   public.club_events,
   public.study_materials,
+<<<<<<< HEAD
   public.quizzes,
+=======
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
   public.site_settings,
   public.transactions,
   public.gallery_items,

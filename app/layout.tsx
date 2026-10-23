@@ -36,7 +36,11 @@ export const metadata: Metadata = {
     "Tirurangadi",
     "Department of Computer Applications",
     "question papers",
+<<<<<<< HEAD
     "quizzes",
+=======
+    "study notes",
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
   ],
   icons: {
     icon: "/favicon.png",
@@ -44,7 +48,11 @@ export const metadata: Metadata = {
   openGraph: {
     title,
     description:
+<<<<<<< HEAD
       "Faculty, student association, club, question papers and quizzes — all in one place.",
+=======
+      "Faculty, student association, club, question papers and study notes — all in one place.",
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
     type: "website",
     url: siteUrl,
     siteName: "BCA Department · PSMO College",
@@ -54,7 +62,11 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title,
     description:
+<<<<<<< HEAD
       "Faculty, student association, club, question papers and quizzes — all in one place.",
+=======
+      "Faculty, student association, club, question papers and study notes — all in one place.",
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
   },
 };
 

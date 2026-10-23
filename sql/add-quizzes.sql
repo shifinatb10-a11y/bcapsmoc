@@ -9,6 +9,7 @@
 
 create extension if not exists pgcrypto;
 
+-- 1. Create table if it doesn't exist
 create table if not exists public.quizzes (
   id               uuid primary key default gen_random_uuid(),
   title            text not null,
@@ -21,6 +22,17 @@ create table if not exists public.quizzes (
   display_order    integer not null default 0,
   created_at       timestamptz not null default now()
 );
+
+-- 2. Ensure all columns exist even if the table already existed previously
+alter table public.quizzes add column if not exists title            text;
+alter table public.quizzes add column if not exists semester         text;
+alter table public.quizzes add column if not exists subject          text;
+alter table public.quizzes add column if not exists description      text;
+alter table public.quizzes add column if not exists duration_minutes integer;
+alter table public.quizzes add column if not exists quiz_url         text;
+alter table public.quizzes add column if not exists questions        jsonb not null default '[]'::jsonb;
+alter table public.quizzes add column if not exists display_order    integer not null default 0;
+alter table public.quizzes add column if not exists created_at       timestamptz not null default now();
 
 create index if not exists quizzes_semester_idx on public.quizzes (semester);
 create index if not exists quizzes_subject_idx on public.quizzes (subject);
@@ -40,11 +52,17 @@ create policy "studyzone manages quizzes"
   using (public.admin_role() in ('studyzone', 'superadmin'))
   with check (public.admin_role() in ('studyzone', 'superadmin'));
 
+drop policy if exists "studyzone writes quizzes" on public.quizzes;
+create policy "studyzone writes quizzes"
+  on public.quizzes for all to authenticated
+  using (public.admin_role() in ('studyzone', 'superadmin'))
+  with check (public.admin_role() in ('studyzone', 'superadmin'));
+
 -- ---- Grants ----
 grant select on public.quizzes to anon, authenticated;
 grant select, insert, update, delete on public.quizzes to authenticated;
 
--- ---- Sample Initial Quizzes (Only inserted if table is empty) ----
+-- ---- Sample Initial Quizzes (Only inserted if table has no rows) ----
 do $$
 begin
   if not exists (select 1 from public.quizzes) then

@@ -35,7 +35,11 @@ export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   association:
     "Manages the student association, its secretaries, event reports and magazines. Can view the finance ledger (read-only).",
   club: "Manages the department club, its events and activity reports.",
+<<<<<<< HEAD
   studyzone: "Manages previous year question papers and subject quizzes.",
+=======
+  studyzone: "Manages previous year question papers and study notes.",
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
   finance:
     "Manages the finance ledger — adds, edits and deletes transactions.",
   media:
@@ -183,6 +187,7 @@ export interface StudyMaterial {
   created_at: string | null;
 }
 
+<<<<<<< HEAD
 export interface QuizQuestion {
   id: string;
   question: string;
@@ -204,6 +209,8 @@ export interface Quiz {
   created_at: string | null;
 }
 
+=======
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
 export interface SiteSetting {
   key: string;
   value: string | null;

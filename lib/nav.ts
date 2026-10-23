@@ -43,7 +43,11 @@ export const MAIN_NAV: MainNavItem[] = [
   {
     href: "/study-zone",
     label: "Study Zone",
+<<<<<<< HEAD
     description: "Question papers & quizzes",
+=======
+    description: "Question papers & study notes",
+>>>>>>> a7d5e2003262c482901d72bd8a30a640729bf83b
     icon: BookOpen,
   },
   {
