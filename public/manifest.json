@@ -1,0 +1,37 @@
+{
+  "name": "BCA Department Portal",
+  "short_name": "BCA PSMO",
+  "description": "Department of Computer Applications — PSMO College (Autonomous), Tirurangadi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbfbfe",
+  "theme_color": "#1e1b4b",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["education"],
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Study Zone",
+      "short_name": "Study",
+      "description": "Browse question papers and notes",
+      "url": "/study-zone",
+      "icons": [{ "src": "/favicon.png", "sizes": "any" }]
+    },
+    {
+      "name": "Gallery",
+      "short_name": "Gallery",
+      "description": "Photos and videos from department events",
+      "url": "/gallery",
+      "icons": [{ "src": "/favicon.png", "sizes": "any" }]
+    }
+  ]
+}
