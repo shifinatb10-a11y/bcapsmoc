@@ -1,0 +1,181 @@
+diff --git a/app/api/document/route.ts b/app/api/document/route.ts
+new file mode 100644
+index 0000000..ed85793
+--- /dev/null
++++ b/app/api/document/route.ts
+@@ -0,0 +1,57 @@
++import { NextRequest, NextResponse } from "next/server";
++
++// Same-origin proxy for public Supabase Storage files.
++// Why: Supabase serves objects with `sandbox` CSP, which blocks Chrome's PDF
++// viewer inside an <iframe>. Serving through our own origin avoids that.
++export const runtime = "nodejs";
++
++export async function GET(request: NextRequest) {
++  const raw = request.nextUrl.searchParams.get("url");
++  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
++  if (!raw || !base) {
++    return new NextResponse("Bad request", { status: 400 });
++  }
++
++  let target: URL;
++  let allowed: URL;
++  try {
++    target = new URL(raw);
++    allowed = new URL(base);
++  } catch {
++    return new NextResponse("Bad request", { status: 400 });
++  }
++
++  // SSRF guard: only our Supabase project, only public storage objects.
++  if (
++    target.protocol !== "https:" ||
++    target.host !== allowed.host ||
++    !target.pathname.startsWith("/storage/v1/object/public/")
++  ) {
++    return new NextResponse("Forbidden", { status: 403 });
++  }
++  target.search = ""; // drop ?download= etc, we want inline
++
++  const upstream = await fetch(target.toString(), { cache: "no-store" });
++  if (!upstream.ok || !upstream.body) {
++    return new NextResponse("Not found", { status: 404 });
++  }
++
++  const upstreamType = upstream.headers.get("content-type") ?? "";
++  const type =
++    upstreamType && upstreamType !== "application/octet-stream"
++      ? upstreamType
++      : target.pathname.toLowerCase().endsWith(".pdf")
++        ? "application/pdf"
++        : "application/octet-stream";
++
++  const headers = new Headers({
++    "Content-Type": type,
++    "Content-Disposition": "inline",
++    "Cache-Control": "public, max-age=300, s-maxage=3600",
++    "X-Content-Type-Options": "nosniff",
++  });
++  const length = upstream.headers.get("content-length");
++  if (length) headers.set("Content-Length", length);
++
++  return new NextResponse(upstream.body, { status: 200, headers });
++}
+diff --git a/components/DocumentActions.tsx b/components/DocumentActions.tsx
+index 0e31a26..c5f8b83 100644
+--- a/components/DocumentActions.tsx
++++ b/components/DocumentActions.tsx
+@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
+ import { Download, Eye, ExternalLink, FileText, X } from "lucide-react";
+ import { cn } from "@/lib/utils";
+ 
++// Same-origin proxy: avoids Supabase's sandbox CSP that blocks PDF in iframe.
++function viewHref(url: string) {
++  return `/api/document?url=${encodeURIComponent(url)}`;
++}
++
+ function downloadHref(url: string) {
+   if (!url) return url;
+   return url.includes("?") ? `${url}&download=` : `${url}?download=`;
+@@ -21,6 +26,12 @@ export function DocumentActions({
+   variant?: "light" | "dark";
+ }) {
+   const [open, setOpen] = useState(false);
++  // Mobile browsers (Android Chrome, iOS) cannot render PDFs inside iframes.
++  const [mobile, setMobile] = useState(false);
++
++  useEffect(() => {
++    setMobile(/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
++  }, []);
+ 
+   useEffect(() => {
+     if (!open) return;
+@@ -82,16 +93,16 @@ export function DocumentActions({
+             <div className="flex items-center gap-2">
+               <a
+                 href={downloadHref(url)}
+-                className="hidden items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-brand-100 hover:text-white sm:inline-flex"
++                className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-brand-100 hover:text-white"
+               >
+                 <Download className="h-3.5 w-3.5" />
+                 Download
+               </a>
+               <a
+-                href={url}
++                href={viewHref(url)}
+                 target="_blank"
+                 rel="noopener noreferrer"
+-                className="hidden items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-brand-100 hover:text-white sm:inline-flex"
++                className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-brand-100 hover:text-white"
+               >
+                 <ExternalLink className="h-3.5 w-3.5" />
+                 Open
+@@ -107,11 +118,39 @@ export function DocumentActions({
+             </div>
+           </div>
+           <div className="flex-1 bg-ink-100">
+-            <iframe
+-              src={`${url}#view=FitH`}
+-              title={title}
+-              className="h-full w-full"
+-            />
++            {mobile ? (
++              <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
++                <FileText className="h-10 w-10 text-brand-600" />
++                <p className="max-w-xs text-sm text-ink-700">
++                  Your phone browser cannot preview PDFs here. Open it in a new
++                  tab or download it.
++                </p>
++                <div className="flex flex-wrap justify-center gap-2">
++                  <a
++                    href={viewHref(url)}
++                    target="_blank"
++                    rel="noopener noreferrer"
++                    className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
++                  >
++                    <ExternalLink className="h-4 w-4" />
++                    Open
++                  </a>
++                  <a
++                    href={downloadHref(url)}
++                    className="inline-flex items-center gap-2 rounded-lg border border-ink-100 bg-white px-4 py-2 text-sm font-semibold text-ink-700"
++                  >
++                    <Download className="h-4 w-4" />
++                    Download
++                  </a>
++                </div>
++              </div>
++            ) : (
++              <iframe
++                src={`${viewHref(url)}#view=FitH`}
++                title={title}
++                className="h-full w-full"
++              />
++            )}
+           </div>
+         </div>
+       ) : null}
+diff --git a/next.config.mjs b/next.config.mjs
+index bfe366a..3ce83e4 100644
+--- a/next.config.mjs
++++ b/next.config.mjs
+@@ -12,8 +12,8 @@ const csp = [
+   "default-src 'self'",
+   "base-uri 'self'",
+   "form-action 'self'",
+-  "frame-ancestors 'none'",
+-  "object-src 'none'",
++  "frame-ancestors 'self'",
++  "object-src 'self'",
+   "img-src 'self' data: blob: https://*.supabase.co https://www.googletagmanager.com https://www.google-analytics.com",
+   "media-src 'self' blob: https://*.supabase.co",
+   "font-src 'self' data:",
+@@ -31,7 +31,7 @@ const csp = [
+ const securityHeaders = [
+   { key: "Content-Security-Policy", value: csp },
+   { key: "X-Content-Type-Options", value: "nosniff" },
+-  { key: "X-Frame-Options", value: "DENY" },
++  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+   {
+     key: "Permissions-Policy",
