@@ -528,7 +528,6 @@ grant select on
   public.clubs,
   public.club_events,
   public.study_materials,
-  public.quizzes,
   public.site_settings,
   public.gallery_items,
   public.page_visibility
