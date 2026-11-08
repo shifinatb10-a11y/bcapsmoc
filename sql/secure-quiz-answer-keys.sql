@@ -56,7 +56,7 @@ declare
   score integer := 0;
   review jsonb := '[]'::jsonb;
 begin
-  if jsonb_typeof(p_answers) <> 'object' then
+  if p_answers is null or jsonb_typeof(p_answers) is distinct from 'object' then
     raise exception 'Answers must be a JSON object';
   end if;
 
