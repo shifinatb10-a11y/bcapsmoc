@@ -187,7 +187,8 @@ export interface QuizQuestion {
   id: string;
   question: string;
   options: string[];
-  correct_option: number;
+  /** Present only in administrator data; never sent to public quiz clients. */
+  correct_option?: number;
   explanation?: string;
 }
 

@@ -147,6 +147,23 @@ export async function getQuizzes(): Promise<Quiz[]> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
+      .from("quizzes_public")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: false });
+    if (error) return [];
+    return (data ?? []) as Quiz[];
+  } catch {
+    return [];
+  }
+}
+
+
+/** Full quiz data is restricted to the Study Zone administrators. */
+export async function getAdminQuizzes(): Promise<Quiz[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
       .from("quizzes")
       .select("*")
       .order("display_order", { ascending: true })

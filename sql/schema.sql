@@ -315,7 +315,7 @@ declare
   r record;
   managed text[] := array[
     'faculty', 'admin_users', 'associations', 'association_reports',
-    'clubs', 'club_events', 'study_materials', 'site_settings',
+    'clubs', 'club_events', 'study_materials', 'quizzes', 'site_settings',
     'transactions', 'gallery_items', 'page_visibility',
     'student_batches', 'students'
   ];
@@ -406,13 +406,14 @@ create policy "studyzone writes study_materials"
   using (public.admin_role() in ('studyzone', 'superadmin'))
   with check (public.admin_role() in ('studyzone', 'superadmin'));
 
-create policy "public read quizzes"
-  on public.quizzes for select using (true);
-
 create policy "studyzone writes quizzes"
   on public.quizzes for all to authenticated
   using (public.admin_role() in ('studyzone', 'superadmin'))
   with check (public.admin_role() in ('studyzone', 'superadmin'));
+
+-- Quiz answer keys are private. Public clients must use the sanitized quizzes_public view.
+revoke all on public.quizzes from anon;
+grant select, insert, update, delete on public.quizzes to authenticated;
 
 -- ---- Admin users: each admin reads their own row; only Super Admin sees/edits the team ----
 create policy "admins read own admin_users row"
@@ -527,7 +528,6 @@ grant select on
   public.clubs,
   public.club_events,
   public.study_materials,
-  public.quizzes,
   public.site_settings,
   public.gallery_items,
   public.page_visibility
@@ -554,34 +554,8 @@ to authenticated;
 -- 11. SEED DATA (only inserted when the tables are empty)
 -- ============================================================================
 
--- Association terms: 2025–2026 (first) and 2026–2027 (current)
-do $$
-begin
-  if not exists (select 1 from public.associations) then
-    insert into public.associations
-      (name, year_label, start_year, end_year, secretary_designation, description, display_order)
-    values
-      ('BCA Students'' Association', '2025–2026', 2025, 2026, 'Association Secretary',
-       'The first student association of the BCA department. During this term the association organised technical and cultural programmes for the department.',
-       2),
-      ('BCA Students'' Association', '2026–2027', 2026, 2027, 'Association Secretary',
-       'The current student association of the BCA department, continuing the work of the previous committee with a fresh set of programmes.',
-       1);
-  end if;
-end $$;
-
--- Default club record
-do $$
-begin
-  if not exists (select 1 from public.clubs) then
-    insert into public.clubs (name, tagline, description, display_order)
-    values (
-      'BCA Tech Club',
-      'Explore, build and share technology together.',
-      'The BCA Tech Club is a student-driven community that brings together learners who are passionate about technology. Through workshops, competitions and hands-on sessions the club helps students go beyond the syllabus and build real projects.',
-      1);
-  end if;
-end $$;
+-- Association and club records are intentionally not seeded.
+-- Add verified college data through the admin dashboard after setup.
 
 -- Default site settings
 insert into public.site_settings (key, value) values

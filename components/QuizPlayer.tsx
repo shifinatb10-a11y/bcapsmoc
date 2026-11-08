@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   X,
   Clock,
@@ -14,6 +14,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import type { Quiz } from "@/lib/types";
+import { gradeQuiz } from "@/app/actions/study";
 
 export function QuizPlayer({
   quiz,
@@ -28,18 +29,37 @@ export function QuizPlayer({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [grade, setGrade] = useState<{ score: number; total: number; percentage: number; review: { selected_option: number | null; correct_option: number; explanation: string | null }[] } | null>(null);
+  const [grading, setGrading] = useState(false);
+  const [gradeError, setGradeError] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(() => {
     return quiz.duration_minutes ? quiz.duration_minutes * 60 : null;
   });
 
-  const handleSubmit = useCallback(() => {
-    setSubmitted(true);
-  }, []);
+  const handleSubmit = useCallback(async () => {
+    if (grading || submitted) return;
+    setGrading(true);
+    setGradeError(null);
+    try {
+      const response = await gradeQuiz(quiz.id, answers);
+      if (response.ok) {
+        setGrade(response.result);
+        setSubmitted(true);
+      } else {
+        setGradeError(response.error);
+      }
+    } catch {
+      setGradeError("Submission failed. Check your connection and try again.");
+    } finally {
+      setGrading(false);
+    }
+  }, [quiz.id, answers, grading, submitted]);
 
   // Timer countdown
   useEffect(() => {
     if (submitted || timeLeft === null) return;
     if (timeLeft <= 0) {
+      setTimeLeft(null);
       handleSubmit();
       return;
     }
@@ -67,17 +87,14 @@ export function QuizPlayer({
 
   const answeredCount = Object.keys(answers).length;
 
-  const score = useMemo(() => {
-    return questions.reduce((acc, q, idx) => {
-      return acc + (answers[idx] === q.correct_option ? 1 : 0);
-    }, 0);
-  }, [questions, answers]);
-
-  const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+  const score = grade?.score ?? 0;
+  const percentage = grade?.percentage ?? 0;
 
   const handleRetake = () => {
     setAnswers({});
     setSubmitted(false);
+    setGrade(null);
+    setGradeError(null);
     setCurrentIndex(0);
     setTimeLeft(quiz.duration_minutes ? quiz.duration_minutes * 60 : null);
   };
@@ -319,7 +336,8 @@ export function QuizPlayer({
                 <div className="space-y-4">
                   {questions.map((q, idx) => {
                     const studentAns = answers[idx];
-                    const isCorrect = studentAns === q.correct_option;
+                    const review = grade?.review[idx];
+                    const isCorrect = !!review && review.selected_option !== null && review.selected_option === review.correct_option;
                     const isUnanswered = studentAns === undefined;
 
                     return (
@@ -359,7 +377,7 @@ export function QuizPlayer({
                         {/* Options */}
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
                           {q.options.map((opt, oIdx) => {
-                            const isThisCorrect = oIdx === q.correct_option;
+                            const isThisCorrect = oIdx === review?.correct_option;
                             const isThisStudentChoice = studentAns === oIdx;
 
                             let optClass = "border-ink-100 bg-white text-ink-700";
@@ -389,13 +407,13 @@ export function QuizPlayer({
                         </div>
 
                         {/* Explanation */}
-                        {q.explanation ? (
+                        {review?.explanation ? (
                           <div className="mt-3 rounded-xl bg-ink-50 p-3 text-xs text-ink-700 border border-ink-100">
                             <span className="font-bold text-ink-900 flex items-center gap-1 mb-0.5">
                               <HelpCircle className="h-3.5 w-3.5 text-brand-600" />
                               Explanation:
                             </span>
-                            {q.explanation}
+                            {review.explanation}
                           </div>
                         ) : null}
                       </div>
@@ -421,7 +439,7 @@ export function QuizPlayer({
             </button>
 
             <span className="text-xs font-medium text-ink-500 hidden sm:inline">
-              Answered {answeredCount} of {total}
+              {gradeError || `Answered ${answeredCount} of ${total}`}
             </span>
 
             <div className="flex items-center gap-2">
@@ -439,9 +457,10 @@ export function QuizPlayer({
               <button
                 type="button"
                 onClick={handleSubmit}
+                disabled={grading}
                 className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 shadow-sm"
               >
-                Submit Quiz
+                {grading ? "Submitting…" : "Submit Quiz"}
               </button>
             </div>
           </div>
