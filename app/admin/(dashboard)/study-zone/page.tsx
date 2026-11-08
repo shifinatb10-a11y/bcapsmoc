@@ -7,7 +7,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { getAdminSession } from "@/lib/auth";
-import { getStudyMaterials, getQuizzes } from "@/lib/queries";
+import { getStudyMaterials, getAdminQuizzes } from "@/lib/queries";
 import { canManage, isSuperAdmin, type Quiz } from "@/lib/types";
 import { adminPageVisible } from "@/lib/page-visibility";
 import { AdminPageHeader, AdminCard, Unauthorized } from "@/components/admin/AdminPage";
@@ -31,7 +31,7 @@ export default async function AdminStudyZonePage() {
 
   const [allMaterials, quizzes] = await Promise.all([
     getStudyMaterials(),
-    getQuizzes(),
+    getAdminQuizzes(),
   ]);
 
   // Notes section is removed - only question papers are managed
