@@ -195,3 +195,27 @@
     scroll-behavior: auto !important;
   }
 }
+
+
+/* Modern editorial homepage motion */
+@keyframes homepage-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes homepage-float {
+  0%, 100% { transform: translateY(0) rotate(3deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+.animate-marquee {
+  width: max-content;
+  animation: homepage-marquee 34s linear infinite;
+}
+.animate-float-slow {
+  animation: homepage-float 8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-float-slow {
+    animation: none !important;
+  }
+}
