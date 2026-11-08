@@ -315,7 +315,7 @@ declare
   r record;
   managed text[] := array[
     'faculty', 'admin_users', 'associations', 'association_reports',
-    'clubs', 'club_events', 'study_materials', 'site_settings',
+    'clubs', 'club_events', 'study_materials', 'quizzes', 'site_settings',
     'transactions', 'gallery_items', 'page_visibility',
     'student_batches', 'students'
   ];
