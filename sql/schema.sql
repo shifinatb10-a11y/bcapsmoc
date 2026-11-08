@@ -406,13 +406,14 @@ create policy "studyzone writes study_materials"
   using (public.admin_role() in ('studyzone', 'superadmin'))
   with check (public.admin_role() in ('studyzone', 'superadmin'));
 
-create policy "public read quizzes"
-  on public.quizzes for select using (true);
-
 create policy "studyzone writes quizzes"
   on public.quizzes for all to authenticated
   using (public.admin_role() in ('studyzone', 'superadmin'))
   with check (public.admin_role() in ('studyzone', 'superadmin'));
+
+-- Quiz answer keys are private. Public clients must use the sanitized quizzes_public view.
+revoke all on public.quizzes from anon;
+grant select, insert, update, delete on public.quizzes to authenticated;
 
 -- ---- Admin users: each admin reads their own row; only Super Admin sees/edits the team ----
 create policy "admins read own admin_users row"
