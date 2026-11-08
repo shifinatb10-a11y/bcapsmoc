@@ -173,3 +173,39 @@ export async function deleteQuiz(formData: FormData) {
   await supabase.from("quizzes").delete().eq("id", id);
   refresh();
 }
+
+
+/**
+ * Public quiz grading endpoint. PostgreSQL evaluates the answer key and only
+ * returns the score/review after submission; never grade in client JavaScript.
+ */
+export async function gradeQuiz(
+  quizId: string,
+  answers: Record<string, number>,
+): Promise<
+  | { ok: true; result: { score: number; total: number; percentage: number; review: { selected_option: number | null; correct_option: number; explanation: string | null }[] } }
+  | { ok: false; error: string }
+> {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(quizId)) {
+    return { ok: false, error: "Invalid quiz." };
+  }
+
+  const entries = Object.entries(answers ?? {});
+  if (entries.length > 200 || entries.some(([key, value]) =>
+    !/^\\d+$/.test(key) || !Number.isInteger(value) || value < 0 || value > 25
+  )) {
+    return { ok: false, error: "Invalid answer data." };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("grade_quiz", {
+    p_quiz_id: quizId,
+    p_answers: answers,
+  });
+
+  if (error || !data) {
+    return { ok: false, error: "Unable to grade this quiz. Please try again." };
+  }
+
+  return { ok: true, result: data as { score: number; total: number; percentage: number; review: { selected_option: number | null; correct_option: number; explanation: string | null }[] } };
+}
