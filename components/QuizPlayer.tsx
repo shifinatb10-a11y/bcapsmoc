@@ -84,7 +84,7 @@ export function QuizPlayer({
   const score = grade?.score ?? 0;
   const percentage = grade?.percentage ?? 0;
 
-    const handleRetake = () => {
+  const handleRetake = () => {
     setAnswers({});
     setSubmitted(false);
     setGrade(null);
@@ -331,7 +331,7 @@ export function QuizPlayer({
                   {questions.map((q, idx) => {
                     const studentAns = answers[idx];
                     const review = grade?.review[idx];
-                    const isCorrect = review?.selected_option !== null && review?.selected_option === review?.correct_option;
+                    const isCorrect = !!review && review.selected_option !== null && review.selected_option === review.correct_option;
                     const isUnanswered = studentAns === undefined;
 
                     return (
