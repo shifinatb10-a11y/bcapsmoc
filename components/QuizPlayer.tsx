@@ -40,20 +40,26 @@ export function QuizPlayer({
     if (grading || submitted) return;
     setGrading(true);
     setGradeError(null);
-    const response = await gradeQuiz(quiz.id, answers);
-    if (response.ok) {
-      setGrade(response.result);
-      setSubmitted(true);
-    } else {
-      setGradeError(response.error);
+    try {
+      const response = await gradeQuiz(quiz.id, answers);
+      if (response.ok) {
+        setGrade(response.result);
+        setSubmitted(true);
+      } else {
+        setGradeError(response.error);
+      }
+    } catch {
+      setGradeError("Submission failed. Check your connection and try again.");
+    } finally {
+      setGrading(false);
     }
-    setGrading(false);
   }, [quiz.id, answers, grading, submitted]);
 
   // Timer countdown
   useEffect(() => {
     if (submitted || timeLeft === null) return;
     if (timeLeft <= 0) {
+      setTimeLeft(null);
       handleSubmit();
       return;
     }
