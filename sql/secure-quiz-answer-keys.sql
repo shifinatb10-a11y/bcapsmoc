@@ -18,7 +18,6 @@ grant select, insert, update, delete on public.quizzes to authenticated;
 -- A view exposes no answer key. It runs with the view owner's privileges,
 -- intentionally bypassing the base-table RLS only for this fixed projection.
 create or replace view public.quizzes_public
-with (security_barrier = true)
 as
 select
   id, title, semester, subject, description, duration_minutes, quiz_url,
