@@ -181,7 +181,7 @@ export async function deleteQuiz(formData: FormData) {
  */
 export async function gradeQuiz(
   quizId: string,
-  answers: Record<string, number>,
+  answers: Record<number, number>,
 ): Promise<
   | { ok: true; result: { score: number; total: number; percentage: number; review: { selected_option: number | null; correct_option: number; explanation: string | null }[] } }
   | { ok: false; error: string }
@@ -192,7 +192,7 @@ export async function gradeQuiz(
 
   const entries = Object.entries(answers ?? {});
   if (entries.length > 200 || entries.some(([key, value]) =>
-    !/^\\d+$/.test(key) || !Number.isInteger(value) || value < 0 || value > 25
+    (!Number.isInteger(Number(key)) || Number(key) < 0 || Number(key) > 199 || !Number.isInteger(value) || value < 0 || value > 25)
   )) {
     return { ok: false, error: "Invalid answer data." };
   }
